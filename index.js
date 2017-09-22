@@ -16,7 +16,18 @@ app.get("/dashboard", function(req,res){
 	res.render("dashboard/dashboard");
 });
 
-app.listen(process.env.PORT,process.env.IP, function(){
+app.get("/readers", function(req,res){
+	res.render("readers/index");
+})
+
+app.post("/readers",function(req,res){
+	res.redirect("/readers")
+})
+app.get("/readers/new", function(req,res){
+	res.render("readers/new");
+})
+
+app.listen(3000, function(){
 console.log("started");
 
 })
