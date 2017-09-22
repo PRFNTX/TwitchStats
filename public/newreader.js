@@ -22,6 +22,7 @@ now.change(function(){
         date.show();
     }
 });
+
 dataAll.change(function(){
     if(dataAll.is(":checked")){
         var dataType = document.querySelectorAll(".dataType");
