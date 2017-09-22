@@ -3,7 +3,7 @@
 <h1> this is a new reader form </h1>
 <form action="/readers" method="POST">
     <div>
-        <input type="text" name="name" placeholder="Reader name">
+        <input type="text" name="name" placeholder="Reader name" required>
         <input type="checkbox" id="periodic" name="periodic"><label for="periodic">Recurring?</label>
     </div>
     <div id="period" hidden="true">
@@ -15,7 +15,7 @@
     </div>
     <div id="date">
         <label for"day">Day:</label>
-        <select name="start" id="day">
+        <select name="startDay" id="day" required>
             <option class="days">today</option>
             <option class="days">tommorow</option>
             <option class="days">The next day</option>
@@ -30,7 +30,7 @@
     </div>
     <div>
     <labal for="class">Reader Class:</labal>
-    <select name="class" id="class">
+    <select name="class" id="class" required>
         <option>get from premade classes from user db</option>
     </select>
     <a href="/class/new">New Class (reroutes) </a>

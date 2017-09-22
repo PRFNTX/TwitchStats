@@ -52,14 +52,18 @@ app.post("/readers",function(req,res){
 		} else {
 			
 			if(!inReader.periodic){
-				schedule = nodeSchedule.scheduleJob(time[1]+" "+time[0]+" * * "+day,)
+				schedule = nodeSchedule.scheduleJob(time[1]+" "+time[0]+" * * "+day,function(){
+					//create new reader here (fork)
+				});
 			} else {
 				var rule;
-				rule = new nodeSchedule.ReccurenceRune();
+				rule = new nodeSchedule.ReccurenceRule();
 				rule.dayOfWeek=day;
 				rule.hour=time[0];
 				rule.minute=time[1];
-				schedule = 
+				schedule = nodeSchedule.scheduleJob(rule,function(){
+					//create new reader here (fork)
+				})
 
 			}
 			res.redirect("/readers")
