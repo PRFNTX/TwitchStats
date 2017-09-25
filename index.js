@@ -6,7 +6,9 @@ var express = require("express"),
 
 var app= express();
 
-mongoose.connect("Avarice");
+var children={};
+
+//mongoose.connect("Avarice");
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(__dirname +'/public'));
@@ -26,6 +28,7 @@ app.get("/readers", function(req,res){
 var weekdays=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 app.post("/readers",function(req,res){
 	var inReader = req.body;
+	console.log(inReader)
 	var day;
 	weekdays.forEach(function(val,ind){
 		if(val===inReader.startDay){
@@ -35,25 +38,24 @@ app.post("/readers",function(req,res){
 
 	var time = inReader.time.split(":");
 	var schedule
-	
-	Reader.create({
-		name: inReader.name,
-		periodic: inreader.periodic,
-		period: inReader.period,
-		immediate: inReader.immediate,
-		day: day,
-		time: inReader.time,
-		class: inReader.class,
-		allData: inReader.allData,
-		data: inReader.data
-	}, function(){
+	var read = new Reader();
+	var keys = inReader.keys();
+	keys.forEach(function(val){
+		read[val]=inReader[val];
+	});
+	read.save(function(err,reader){
 		if(err){
 			console.log("bad things on create reader");
 		} else {
 			
 			if(!inReader.periodic){
+				var timeValue =time[1]+" "+time[0]+" * * "+day 
 				schedule = nodeSchedule.scheduleJob(time[1]+" "+time[0]+" * * "+day,function(){
 					//create new reader here (fork)
+					var args=[name,process.end.GM_CLIENT_ID, "prfnt",timeValue];
+					args.push(data);
+					children[name]=child_process.fork("reader.js",{execArgv:args});
+
 				});
 			} else {
 				var rule;
@@ -62,9 +64,11 @@ app.post("/readers",function(req,res){
 				rule.hour=time[0];
 				rule.minute=time[1];
 				schedule = nodeSchedule.scheduleJob(rule,function(){
-					//create new reader here (fork)
-				})
-
+					//create new reader here (forkvar args=[timeValue];
+					var args=[name,process.end.GM_CLIENT_ID, "prfnt",timeValue];
+					args.push(data);
+					children[name]=child_process.fork("reader.js",{execArgv:args});
+				});
 			}
 			res.redirect("/readers")
 		}
