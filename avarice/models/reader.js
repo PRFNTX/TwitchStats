@@ -12,7 +12,7 @@ var readerSchema = new mongoose.Schema({
     //start (weekday)
     day: Number,
     //time (hour)a
-    time: Date,
+    time: [String,String],
     //class
     class: String,
     //allData (bool) or:
