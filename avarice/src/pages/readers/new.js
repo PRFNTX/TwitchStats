@@ -49,12 +49,27 @@ class NewReader extends Component{
             allData: e.target.elements.allData.checked,
             data:data,
         }
-        console.log(reader)
-
-        axios.post("localhost:3000",JSON.stringify(reader)).then(()=>console.log("success")).catch((err)=>{
-            console.log(err)
-        })
-
+        let it = JSON.stringify(reader)
+        console.log(JSON.stringify(it))
+    //     fetch('/readers',{
+    //         method:"POST",
+    //         headers:{
+    //             'Accept':'application/json',
+    //             'Content-Type':'application/x-www-form-urlencoded'
+    //         },
+    //         body:{
+    //             "reader":it
+    //         }
+ 
+    //         }).then((res)=>{
+    //             console.log(res)
+    //         }).catch((err)=>{
+    //             console.log(err)
+    //         })
+    axios.post("/readers",reader).then(
+        (res)=>{console.log(res)},
+        (err)=>{console.log(err)}
+    )
     }
 
     immediate=()=>{
@@ -68,7 +83,7 @@ class NewReader extends Component{
     }
     render(){
         return(
-            <div>
+            <div className="container new-reader">
                 <form onSubmit={this.onSubmit}>
                     <div>
                         <input type="text" name="name" placeholder="Reader name" required />

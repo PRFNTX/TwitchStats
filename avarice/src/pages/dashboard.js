@@ -7,7 +7,7 @@ class Dashboard extends Component{
     render(){
         //populate readers from database
         return(
-            <div className="dash-main">
+            <div className="dash-main container">
                 <h1> This is the dashboard </h1>
             </div>
         )

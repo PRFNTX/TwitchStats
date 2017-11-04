@@ -18,10 +18,12 @@ class MenuItem extends Component{
             showDrop:false,
         })
     }
-    drop=(e)=>{
-        if (this.props.item.drop){
+    drop=(e,over)=>{
+        if(over&&this.state.showDrop){
+
+        }
+        else if (this.props.item.drop){
             let boo = this.state.showDrop
-            console.log("drop the menu")
             this.setState({
                 showDrop:!boo
             })
@@ -53,9 +55,9 @@ class MenuItem extends Component{
         }
         //use this.props.active(int) to highlight current
         return(
-            <div onMouseLeave={this.drop} onMouseEnter={this.drop} className="menu-item" style={this.style}>
-                {item}
+            <div onMouseLeave={this.drop} onMouseOver={(e)=>this.drop(e,true)} className="menu-item link" style={this.style}>
                 {dropList}
+                {item}
             </div>
         )
     }

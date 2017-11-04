@@ -26,3 +26,55 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+
+.container {
+  width:80vw;
+  margin:10vw auto;
+  text-align:center;
+}
+
+.new-reader form>div{
+  border:1px solid grey;
+}
+
+.menu-dropdown{
+  background-color:#E083D1;
+  border-bottom-right-radius: 1vw;
+  width:100%;
+  z-index:1;
+  top:7vw;
+  left:0vw;
+  text-align:center;
+}
+
+.menu-dropdown h3{
+  margin:0;
+  top:0;
+  padding:1vw 0;
+  border:1px solid purple;
+}
+.menu-dropdown h3:hover{
+  background-color:#EC46B5;
+}
+
+.menu{
+  position:absolute;
+  top:0;
+  background-color:turquoise;
+}
+
+.menu>div{
+  cursor:pointer;
+
+  border:1px solid purple;
+}
+
+.menu .link{
+  text-align:center;
+  width:20vw;
+  height:inherit;
+}
+.menu .link:hover {
+  background-color:#2FEB5E;
+}
