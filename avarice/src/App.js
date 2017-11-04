@@ -59,8 +59,8 @@ class App extends Component {
           <Switch>
             <Route path="/" exact component={Landing} />
             <Route path="/dashboard" component={Dashboard} />
-            <Route path="/readers/new" component={Dashboard} />
-            <Route path="/readers" component={Dashboard} />
+            <Route path="/readers/new" component={NewReader} />
+            <Route path="/readers" exact component={Readers} />
           </Switch>
         </div>
       </Router>

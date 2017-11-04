@@ -8,10 +8,10 @@ class MenuDropdown extends Component{
         //     link:String
         // }
         let items=this.props.items.map(val=>{
-            return <Link to="val.link"><h3><span>{val.val}</span></h3></Link>
+            return <Link to={val.link} ><h3><span>{val.val}</span></h3></Link>
         })
         return(
-            <div className="menu-dropdown">
+            <div style={{"position":"absolute"}} className="menu-dropdown">
                 {items}
             </div>
         )

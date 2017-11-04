@@ -6,6 +6,7 @@ class Menu extends Component{
     render(){
         //items are singles (val, link, drop)
         //optional items component for dropdown
+        console.log(this.props.items)
         let items = this.props.items.map(val=>{
             return <MenuItem item={val} />
         })

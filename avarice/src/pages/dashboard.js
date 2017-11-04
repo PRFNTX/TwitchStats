@@ -8,6 +8,7 @@ class Dashboard extends Component{
         //populate readers from database
         return(
             <div className="dash-main">
+                <h1> This is the dashboard </h1>
             </div>
         )
     }
