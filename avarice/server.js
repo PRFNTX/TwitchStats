@@ -1,8 +1,14 @@
-var express = require("express"),
-	mongoose = require("mongoose"),
-	bodyParser = require("body-parser"),
-	Reader=require("./models/reader"),
-	nodeSchedule=require("node-schedule")
+var express 				= require("express"),
+	mongoose 				= require("mongoose"),
+	bodyParser 				= require("body-parser"),
+	Reader					= require("./models/reader"),
+	nodeSchedule			= require("node-schedule"),
+	jwt						= require('jsonwebtoken'),
+	User					= require('./models/user'),
+	_ 						= require('lodash'),
+	// passport				= require('passport'),
+	// passportLocal			= require('passport-local'),
+	// passportLocalMongoose	= require('passport-local-mongoose');
 
 const child_process = require("child_process")
 
@@ -14,16 +20,38 @@ mongoose.connect("mongodb://localhost/Avarice");
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
-// app.use(express.static(__dirname +'/public'));
-// app.use(function(req, res, next) {
-	// res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-	// res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	// next();
-//   });
+
+//passport
+app.use(passport.initialize())
+// app.use(passport.session())
+passport.use(new passportLocal(User.authenticate()))
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser())
+app.use(express.static(__dirname +'/public'));
+
   
+app.post("register",(req,res)=>{
+	var newUser= new User({username: req.body.username});
+    User.register(newUser,req.body.password, function(err,user){
+        if(err){
+            console.log(err);
+            return res.json({})
+        }
+        passport.authenticate("local")(req,res,function(){
+			res.headers.authenticate=signJWT({username:req.body.username})
+			res.status(200).send("/dashboard")
+		});
+		
+    });
 
+})
 
-app.post("/readers",function(req,res){
+app.post("/login", passport.authenticate("local"),(req,res)=>{
+	res.headers.authenticate=signJWT({username:req.body.username})
+	res.status(200).send("/dashboard")
+})
+
+app.post("/readers", verifyJWTToken, function(req,res){
 	console.log(req.body)
 	let inReader=req.body
 	Reader.create(inReader,function(err,reader){
@@ -88,3 +116,53 @@ console.log("started on 3003");
 
 })
 
+
+function verifyJWT(token){
+	//copied code
+	return new Promise ((resolve,reject)=>{
+		jwt.verify(token,'secret', (err,tokenDecoded)=>{
+			if (err || !tokenDecoded){
+				return reject(err);
+			}
+			resolve(tokenDecoded)
+		})
+	})
+}
+
+function signJWT(obj){
+	//copied code
+	if (typeof(obj) !== 'object'){
+		obj={}
+	}
+	if (!obj.maxAge || typeof(obj.maxAge)!=="number"){
+		obj.maxAge=3600;
+	}
+
+	obj.sessionData = _.reduce(obj.sessionData||{}, (memo, val ,key)=>{
+		if (typeof(val) !== "function" && key !=="password"){
+		memo[key]=val;
+		}
+		return memo;
+	},{});
+
+	let token = jwt.sign({
+		data:obj.sessionData
+	},'secret', {
+		expiresIn:obj.maxAge,
+		algorith:'HS256'
+	})
+	return token
+}
+
+function verifyJWTToken(req,res,next){
+	let token = req.headers.authenticate;
+
+	verifyJWT(token).then(
+		(tokenDecoded)=>{
+			req.user=tokenDecoded.data;
+			next()
+		}
+	).catch(err=>{
+		res.status(400).json({message:"invalid auth token"})
+	})
+}
