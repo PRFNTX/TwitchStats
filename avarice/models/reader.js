@@ -2,7 +2,11 @@ var mongoose = require("mongoose");
 
 var readerSchema = new mongoose.Schema({
     //name
-    name: String,
+    username:String,
+    name: {
+        type:String,
+        index:{unique:true}
+    },
     //periodic (bool)
     periodic: Boolean,
     //period (daily/weekly)(true/false)

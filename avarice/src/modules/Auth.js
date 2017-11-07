@@ -4,7 +4,7 @@ class Auth {
     }
 
     static isUserAuthenticated(){
-        return localStorage.getItem('token')!==null;
+        return !(localStorage.getItem('token')===null);
     }
 
     static deauthenticateUser(){
@@ -14,4 +14,12 @@ class Auth {
     static getToken(){
         return localStorage.getItem('token');
     }
+    static failedAuth(code){
+        if (code===411){
+            Auth.deauthenticateUser();
+            window.location.pathname="/login"
+        }
+    }
 }
+
+export default Auth

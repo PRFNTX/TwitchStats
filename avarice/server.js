@@ -6,7 +6,8 @@ var express 				= require("express"),
 	jwt						= require('jsonwebtoken'),
 	User					= require('./models/user'),
 	_ 						= require('lodash'),
-	// passport				= require('passport'),
+	bcrypt					= require('bcrypt')
+	// passport				= require('passport')
 	// passportLocal			= require('passport-local'),
 	// passportLocalMongoose	= require('passport-local-mongoose');
 
@@ -22,33 +23,125 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
 //passport
-app.use(passport.initialize())
+// app.use(passport.initialize())
 // app.use(passport.session())
-passport.use(new passportLocal(User.authenticate()))
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser())
+// passport.use(new passportLocal(User.authenticate()))
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser())
 app.use(express.static(__dirname +'/public'));
 
-  
-app.post("register",(req,res)=>{
-	var newUser= new User({username: req.body.username});
-    User.register(newUser,req.body.password, function(err,user){
-        if(err){
-            console.log(err);
-            return res.json({})
-        }
-        passport.authenticate("local")(req,res,function(){
-			res.headers.authenticate=signJWT({username:req.body.username})
-			res.status(200).send("/dashboard")
-		});
-		
-    });
+function register(username, password){
+	return new Promise((resolve,reject)=>{
+		bcrypt.genSalt(12,(err,salt)=>{
+			if (err){
+				console.log(err)
+				reject(err)
+			}
+			bcrypt.hash(password,salt,(err,hash)=>{
+				if (err){
+					console.log(err)
+					reject(err)
+				}
+				
+				User.create({
+					username:username,
+					password:hash,
+				}, (err,user)=>{
+					if (err){
+						console.log(err)
+						reject(err)
+					}
+					resolve(user)					
+				})
+			})
+		})
+	})
+}
 
+function verify(user,pass){
+	return new Promise((resolve,reject)=>{
+		User.findOne({'username':user},(err,founduser)=>{
+			if (err){
+				reject(err)
+			}
+			bcrypt.compare(founduser.password,pass,(err,res)=>{
+				if (err){
+					console.log(err)
+					reject(err)					
+				}
+				resolve(user)
+			})
+		})
+	})
+
+}
+
+app.get("/dashboard", verifyJWTToken,(req,res)=>{
+	res.json({test:"test",thigner:'thinger'})
 })
 
-app.post("/login", passport.authenticate("local"),(req,res)=>{
-	res.headers.authenticate=signJWT({username:req.body.username})
-	res.status(200).send("/dashboard")
+app.post("/register",(req,res)=>{
+	// var newUser= new User({username: req.body.username});
+	console.log("hit")
+	register(req.body.username,req.body.password).then(
+		(user)=>{
+			// res.headers.authenticate=
+			res.set({
+				'authenticate':signJWT({username:req.body.username})
+			})
+			res.status(200).send("/dashboard")
+		},
+		(err)=>{
+			res.status(403).send("/register")
+		}
+	)
+})
+
+app.post("/login",(req,res)=>{
+	console.log("hitter")
+	verify(req.body.username,req.body.password).then(
+		(result)=>{
+			console.log(result)
+			res.set({
+				'authenticate':signJWT({username:req.body.username})
+			})
+			res.status(200).send("/dashboard")
+		},
+		(err)=>{
+			res.status(403).send("/login")
+		}
+	)
+})
+app.get("/readers/:name", verifyJWTToken, (req,res)=>{
+	Readers.findOne({username:req.user,name:req.params.name},(err, reader)=>{
+		if (err){
+			console.log(err),
+			res.status(401).json({message:"could not find reader"})
+		}
+		res.status(200).json(reader)
+	})
+})
+app.get("/readers", verifyJWTToken, function(req,res){
+	Reader.find({username:req.user},(err,readers)=>{
+		if(err){
+			res.status(204).json([])
+		}
+		console.log(readers)
+		res.status(200).json(readers)
+	})
+})
+
+
+app.get("/classes", verifyJWTToken, function(req,res){
+	//temp code
+	res.status(200).json({
+		"username":req.user,
+		"classes":[
+		{"name":"class1"},
+		{"name":"class2"},
+		{"name":"class3"},
+		{"name":"class4"},
+	]})
 })
 
 app.post("/readers", verifyJWTToken, function(req,res){
@@ -121,6 +214,7 @@ function verifyJWT(token){
 	//copied code
 	return new Promise ((resolve,reject)=>{
 		jwt.verify(token,'secret', (err,tokenDecoded)=>{
+			console.log(tokenDecoded)
 			if (err || !tokenDecoded){
 				return reject(err);
 			}
@@ -138,31 +232,37 @@ function signJWT(obj){
 		obj.maxAge=3600;
 	}
 
-	obj.sessionData = _.reduce(obj.sessionData||{}, (memo, val ,key)=>{
-		if (typeof(val) !== "function" && key !=="password"){
-		memo[key]=val;
+	obj= _.reduce(obj||{}, (memo, val ,key)=>{
+			if (typeof(val) !== "function" && key !=="password"){
+			memo[key]=val;
 		}
 		return memo;
 	},{});
 
 	let token = jwt.sign({
-		data:obj.sessionData
+		data:obj
 	},'secret', {
 		expiresIn:obj.maxAge,
-		algorith:'HS256'
+		algorithm:'HS256'
 	})
+	console.log(typeof token)
 	return token
 }
 
 function verifyJWTToken(req,res,next){
-	let token = req.headers.authenticate;
+	let token =(req.headers.authenticate);
+	console.log("token:")
+	console.log(token)
 
 	verifyJWT(token).then(
 		(tokenDecoded)=>{
-			req.user=tokenDecoded.data;
+			console.log("token Decoded")
+			console.log(tokenDecoded);
+			req.user=tokenDecoded.data.username;
 			next()
 		}
 	).catch(err=>{
-		res.status(400).json({message:"invalid auth token"})
+		console.log(err)
+		res.status(411).json({message:"invalid auth token"})
 	})
 }

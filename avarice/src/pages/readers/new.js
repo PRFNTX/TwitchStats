@@ -2,10 +2,39 @@ import React, { Component } from "react"
 import { Link } from "react-router-dom"
 import axios from "axios"
 
+import Auth from "../../modules/Auth"
+
 
 class NewReader extends Component{
+    constructor(){
+        super();
+        this.username;
+        this.state={
+            classes:[
+                {"name":"unable to get classes"}
+            ]
+        };
+        // this.updated=false;
+    }
     componentWillMount(){
-        //pull readers from database
+        //pull class names from database
+        // if (!this.updates){
+            axios.get("/classes",{headers:{authenticate:Auth.getToken()}}).then(
+                (result)=>{
+                    console.log(result.data)
+                    this.setState({
+                        classes:result.data.classes
+                    })
+                    this.username=result.data.username
+                },
+                (err)=>{
+                    console.log(err.response);
+                    Auth.failedAuth(err.response.status)
+                }
+            )
+            // this.updates=true;
+        // }
+
     }
 
     componentDidMount(){
@@ -39,6 +68,7 @@ class NewReader extends Component{
         })
 
         let reader={
+            username:this.username,
             name:e.target.elements.name.value,
             periodic:isPeriodic,
             period: period,
@@ -50,7 +80,6 @@ class NewReader extends Component{
             data:data,
         }
         let it = JSON.stringify(reader)
-        console.log(JSON.stringify(it))
     //     fetch('/readers',{
     //         method:"POST",
     //         headers:{
@@ -66,8 +95,12 @@ class NewReader extends Component{
     //         }).catch((err)=>{
     //             console.log(err)
     //         })
-    axios.post("/readers",reader).then(
-        (res)=>{console.log(res)},
+    console.log(Auth.getToken())
+    axios.post("/readers",reader,{headers:{authenticate:Auth.getToken()}}).then(
+        (res)=>{
+            console.log(res);
+            this.props.popReaders()
+        },
         (err)=>{console.log(err)}
     )
     }
@@ -79,9 +112,10 @@ class NewReader extends Component{
         this.period.hidden=!this.isPeriodic.checked
     }
     datas=()=>{
-        this.datas.hidden=this.dataAll.checked
+        this.dataBlock.hidden=this.dataAll.checked
     }
     render(){
+        let options=this.state.classes.map(val=> {return <option value={val.name} >{val.name}</option>})
         return(
             <div className="container new-reader">
                 <form onSubmit={this.onSubmit}>
@@ -114,14 +148,14 @@ class NewReader extends Component{
                     <div>
                     <label htmlFor="class">Reader Class:</label>
                     <select name="class" id="class" required>
-                        <option>get from premade classes from user db</option>
+                        {options}
                     </select>
                     <a href="/class/new">New Class (reroutes) </a>
                     </div>
                     <div>
                     <label>Track:</label>
-                    <div className="block" ><input ref={(ref)=>this.dataAll=ref} onChange={this.datas} id="dataAll" type="checkbox" value="all" name="allData" /><label htmlFor="dataAll">Track All</label></div>
-                    <div ref={(ref)=>this.datas=ref} id="allData">
+                    <div className="block" ><input ref={(ref)=>this.dataAll=ref} onChange={()=>{this.datas()}} id="dataAll" type="checkbox" value="all" name="allData" /><label htmlFor="dataAll">Track All</label></div>
+                    <div ref={(ref)=>this.dataBlock=ref} id="allData">
                     <div className="block"  >
                         <input id="data1" className="dataType" type="checkbox" name="data" value="data1" /><label htmlFor="data1">data1</label>
                         <input id="data2" className="dataType" type="checkbox" name="data" value="data2" /><label htmlFor="data2">data2</label>

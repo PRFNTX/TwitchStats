@@ -1,9 +1,24 @@
 import React, { Component } from "react"
 import Link from "react-router-dom"
+import Auth from "../modules/Auth"
+
+import axios from "axios"
 
 import Menu from "../components/menu"
 
 class Dashboard extends Component{
+    componentDidMount(){
+        axios.get("/dashboard",{headers:{authenticate:Auth.getToken()}}).then(
+            (res)=>{
+                console.log(res);
+            },
+            (err)=>{
+                console.log("error here:")
+                console.log(err.response)
+                Auth.failedAuth(err.response.status)
+            }
+        )
+    }
     render(){
         //populate readers from database
         return(
