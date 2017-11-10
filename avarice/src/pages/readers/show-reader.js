@@ -24,6 +24,7 @@ class ShowReader extends Component{
                 this.setState({
                     reader:result.data
                 })
+                console.log(result.data)
             },
             (err)=>{
                 console.log(err)
