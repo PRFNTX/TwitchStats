@@ -10,6 +10,7 @@ import ShowReader from "./pages/readers/show-reader"
 import Dashboard from "./pages/dashboard.js"
 import Register from "./pages/register"
 import Login from "./pages/login"
+import View from "./pages/view"
 
 import Menu from "./components/menu"
 
@@ -144,7 +145,7 @@ class App extends Component {
                   return (this.noAuth() ? <Login readers={this.populateReaders} /> : <Redirect to="/dashboard" />)
                 }
               } />
-            {/* auth routes */}
+            {/* auth required routes */}
             <Route path="/dashboard" render={()=>{
                   return (this.requireAuth() ? <Dashboard /> : <Redirect to="/login" />)
                 } 
@@ -162,6 +163,10 @@ class App extends Component {
               } />
             <Route path="/readers" exact render={()=>{
                   return (this.requireAuth() ? <Readers /> : <Redirect to="/login" />)
+                }
+              } />
+            <Route path="/view" exact render={()=>{
+                  return (this.requireAuth() ? <View /> : <Redirect to="/login" />)
                 }
               } />
             {/* auth empty */}
