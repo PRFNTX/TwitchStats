@@ -1,4 +1,9 @@
 class Auth {
+
+	static header(){
+		return {headers:{authenticate:localStorage.getItem('token')}}
+	}
+
     static authenticateUser(token){
         localStorage.setItem('token',token);
     }
