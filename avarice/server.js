@@ -532,7 +532,7 @@ async function startReader(reader){
 	if (typeof(reader)==="string"){
 		await Reader.find({name:reader}).then(
 			result=>{
-				var args=["agents/reader.js",result.name,"process.end.GM_CLIENT_ID", "prfnt","oauth:30yxno4670anheszf1chpk7upnb8xi","lara6683"];
+				var args=["agents/reader.js",result.name,"process.end.GM_CLIENT_ID", "prfnt",,"lara6683"];
 				let toPush=[null,reader,"dataexplicit"]//( !result.allData ? result.data : [null,"data3","dataexplicit"])
 				toPush.forEach((val)=>{
 					args.push(val)
