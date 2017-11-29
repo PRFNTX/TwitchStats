@@ -551,7 +551,7 @@ async function startReader(reader){
 		})
 	} else {
 		let ret
-		var args=["agents/reader.js",reader.name,"process.end.GM_CLIENT_ID", "prfnt","oauth:30yxno4670anheszf1chpk7upnb8xi","lara6683"];
+		var args=["agents/reader.js",reader.name,"process.end.GM_CLIENT_ID", "prfnt",,"lara6683"];
 		let toPush=['null',reader.name,"dataexplicit"]// !reader.allData ? reader.data : ['null',"data3","dataexplicit"])
 		toPush.forEach((val)=>{
 			args.push(val)
