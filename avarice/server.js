@@ -11,6 +11,7 @@ var express 				= require("express"),
 	_ 						= require('lodash'),
 	bcrypt					= require('bcrypt'),
 	twitch					= require('twitch.tv')
+	env						= require('./env/env')
 	// passport				= require('passport')
 	// passportLocal			= require('passport-local'),
 	// passportLocalMongoose	= require('passport-local-mongoose');
@@ -532,7 +533,7 @@ async function startReader(reader){
 	if (typeof(reader)==="string"){
 		await Reader.find({name:reader}).then(
 			result=>{
-				var args=["agents/reader.js",result.name,"process.end.GM_CLIENT_ID", "prfnt",,"lara6683"];
+				var args=["agents/reader.js",result.name,"process.end.GM_CLIENT_ID", "prfnt",env.oauth,"lara6683"];
 				let toPush=[null,reader,"dataexplicit"]//( !result.allData ? result.data : [null,"data3","dataexplicit"])
 				toPush.forEach((val)=>{
 					args.push(val)
@@ -551,7 +552,7 @@ async function startReader(reader){
 		})
 	} else {
 		let ret
-		var args=["agents/reader.js",reader.name,"process.end.GM_CLIENT_ID", "prfnt",,"lara6683"];
+		var args=["agents/reader.js",reader.name,"process.end.GM_CLIENT_ID", "prfnt",env.oauth,"lara6683"];
 		let toPush=['null',reader.name,"dataexplicit"]// !reader.allData ? reader.data : ['null',"data3","dataexplicit"])
 		toPush.forEach((val)=>{
 			args.push(val)

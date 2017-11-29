@@ -9,10 +9,11 @@ const TwitchBot= require('twitch-bot'),
 	//Channel=require("./models/stream")
 	axios=require('axios')
 	twitch=require('twitch.tv')
-
+	env=require("../env/env")
 const options={
 	ua:"",
 	apiVersion:"5",
+	clientID:env.clientId
 }
 
 
