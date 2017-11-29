@@ -13,7 +13,6 @@ const TwitchBot= require('twitch-bot'),
 const options={
 	ua:"",
 	apiVersion:"5",
-	clientID:'xuuji0gfwn2swxwp15urun7nennva9'
 }
 
 
