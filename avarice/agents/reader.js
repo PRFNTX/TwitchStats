@@ -91,7 +91,7 @@ session=>{
 			twitch("streams/"+channelID,options, (err,res)=>{
 				createStream(res.stream,session,reader)
 			})
-		},10000)
+		},60000)
 		
 		Bot.on("message", (chatter)=>{
 			console.log("chat  event",chatter.username)
@@ -99,18 +99,26 @@ session=>{
 		})
 
 
+		Bot.on('close',(thing)=>{
+			console.log("CLOSED", thing)
+		})		
+
 		Bot.on('join',(thing)=>{
-			dataPoint.data.joins+=1;
-			let found=false;
-			dataPoint.data.joinsAll.forEach(val=>{
-				if (val===thing.username){
-					found=true;
-				}
-			})
-			if (!found){
-				dataPoint.data.joinsAll.push(thing.username)
-			}
-		})
+			console.log("JOIN", thing)
+		})		
+
+		Bot.on('error',(thing)=>{
+			console.log("ERROR", thing)
+		})		
+
+		Bot.on('ban',(thing)=>{
+			console.log("BAN", thing)
+		})		
+
+		Bot.on('timeout',(thing)=>{
+			console.log("TIMEOUT", thing)
+		})		
+
 	})
 
 	Bot.on("error", (err)=>{

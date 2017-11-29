@@ -258,24 +258,187 @@ app.post("/readers", verifyJWTToken, function(req,res){
 	//allData (bool) or:
 	//data[] [thing,thing,thing,......]
 	//res.redirect(redirect to error page)
+
 })
 app.get("/readers/new", function(req,res){
 	res.render("readers/new");
 })
 
-app.get('/sessions',verifyJWTToken, (req,res)=>{
-	Session.find().then(
+app.delete("/sessions/:id", verifyJWTToken,(req,res)=>{
+	let m=Message.find({session:req.params.id}).remove()
+	let s=Stream.find({session:req.params.id}).remove()
+	Promise.all([m,s]).then(
+		dones=>{
+			return Session.find({_id:req.params.id}).remove()
+		}
+	).then(
 		result=>{
-			res.status(200).json({sessions:result})
+			res.status(200).json({message:"session "+req.params.id+" deleted"})
 		}
 	).catch(
 		err=>{
+			res.status(500).json({message:"something went wrong"})
+		}
+	)
+})
+
+
+async function viewersTime(query){
+	return Stream.find(query).then(
+		results=>{
+			let views=results.map(val=>val.viewers)
+			let time=results.map(val=>val._id.getTimestamp())
+			console.log("XY", [time,views])
+			return {x:time,y:views}
+		}
+	)
+}
+
+async function messagesTime(query,interval){
+	
+	return Message.find(query).then(
+		results=>{
+			let buckets = results.reduce((a,b)=>{
+				if (!a){
+					return {bin:Number(results[0]._id.getTimestamp()),bins:[0],interval:interval,t0:results[0]._id.getTimestamp()}
+				} else if (Number(b._id.getTimestamp())<(a.bin+interval)){
+					console.log("BINS",a.bins)
+					let newA = a
+					newA.bins[newA.bins.length-1]+=1
+					return newA
+				} else {
+					let newA = a
+					newA.bin +=interval;
+					newA.bins.push(1)
+					return newA
+				}
+			},null)
+			console.log("BUCKETS", buckets)
+			return buckets
+		}
+	)
+}
+
+async function messagesUsers(query){
+	return Message.find(query).then(
+		results=>{
+			let counts = results.reduce((a,b)=>{
+				if (!a){
+					return {users:[],messages:[]}
+				} else {
+					let index =a.users.indexOf(b.username)
+					if (index>=0){
+						let newA=a
+						newA.messages[index]+=1;
+						return newA
+					}
+					else {
+						let newA=a
+						newA.users.push(b.username);
+						newA.messages.push(1)
+						return newA
+					}
+				}
+			},null)
+			console.log("COUNT", counts)
+			return counts
+		}
+	)
+}
+
+app.get('/sessions/:id/messages',verifyJWTToken,(req,res)=>{
+	Message.find({session:req.params.id}).then(
+		results =>{
+			res.status(200).json(results)
+		}
+	).catch(err=>{console.log(err)})
+})
+
+app.get('/sessions/:id/streams',verifyJWTToken,(req,res)=>{
+	Stream.find({session:req.params.id}).then(
+		results =>{
+			res.status(200).json(results)
+		}
+	).catch(err=>{console.log(err)})
+})
+
+app.get('/sessions/:id',verifyJWTToken,(req,res)=>{
+	console.log(req.headers)
+	let query={session:req.params.id}
+	let type=req.headers.type
+	console.log(type)
+	let prom
+	switch (type){
+		case "viewers-time":
+			prom =viewersTime(query);
+			break;
+		case "messages-time":
+			prom=messagesTime(query,60000);
+			break;
+		case "messages-user":
+			prom=messagesUsers(query);
+			break;
+	}
+	prom.then(
+		results=>{
+			res.status(200).json(results)
+		}
+	).catch(
+		err=>{
+			console.log(err)
+			res.status(500).json({message:"failed to get data"})
+		}
+	)
+})
+
+app.get('/sessions',verifyJWTToken, (req,res)=>{
+	Session.find().then(
+		result=>{
+			sessionMeta(result).then(
+				lens =>{
+					console.log(lens)
+					res.status(200).json({sessions:result,msgs:lens.msgs,streams:lens.streams})
+				}
+			).catch(err=>{
+				console.log(err)
+				res.sendStatus(500)
+			})
+		}
+	).catch(
+		err=>{
+			
 			console.log(err)
 			console.log("session get error")
 			res.status(500).json({message:"failed to get sessions"})
 		}
 	)
 })
+
+async function sessionMeta(sessions){
+	let ret={}
+	let msgLen
+	let streamLen
+	let msgs = sessions.map(val=>Message.count({session:val._id}))
+	let streams = sessions.map(val=>Stream.count({session:val._id}))
+	let pmsg=Promise.all(msgs).then(
+		result=>{
+			console.log(result)
+			return result.map((val,i)=>{return {'session':sessions[i]._id,len:val}})	
+		}
+	).catch(err=>console.log(err))
+	let pstrm =Promise.all(streams).then(
+		result=>{
+			return result.map((val,i)=>{return {'session':sessions[i]._id,len:val}})	
+		}
+	).catch(err=>console.log(err))
+	
+	return Promise.all([pmsg,pstrm]).then(
+		results =>{
+			console.log(results)
+			return {msgs:results[0],streams:results[1]}
+		}
+	).catch(err=>{console.log(err)})
+}
 
 app.get('view/streams',(req,res)=>{
 	let q=req.params.query
