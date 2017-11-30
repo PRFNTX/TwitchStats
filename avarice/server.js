@@ -121,6 +121,18 @@ app.post("/login",(req,res)=>{
 })
 
 
+app.post("/readers/schedule/:id",verifyJWTToken, (req,res)=>{
+	let time=req.body.sTime.split(":")
+	let day=req.body.sDay
+	var startValue =(time[1] ?time[1] : "*") +" "+(time[0] ?time[0] : "*")+" * * "+day 
+
+	let eTime=req.body.eTime.split(":")
+	let eDay=req.body.eDay
+	var endValue =(time[1] ?time[1] : "*") +" "+(time[0] ?time[0] : "*")+" * * "+day 
+	//var termVal =(time[1] ? Number(time[1])+2 : "*") +" "+(time[0] ?time[0] : "*")+" * * "+day 
+	scheduleReader(startValue,endValue,req.params.id)
+	res.sendStatus(200)
+})
 
 app.get("/readers/active",verifyJWTToken, (req,res)=>{
 	console.log("WE DID GET HERE")
@@ -184,13 +196,21 @@ app.get("/readers/:name", verifyJWTToken, (req,res)=>{
 	})
 })
 
+app.delete("/readers/:id", verifyJWTToken, (req,res)=>{
+	Reader.find({_id:req.params.id}).remove().then(
+		result=>{
+			res.status(200).json({message:"item deleted"})
+		}
+	).catch(err=>{res.status(500).json({message:"item not deleted"})})
+})
+
 app.get("/readers", verifyJWTToken, function(req,res){
 	Reader.find(/*{username:req.user}*/{},(err,readers)=>{
 		if(err){
 			res.status(204).json({message:"error on get"})
 		}
 		console.log(readers[0])
-		res.status(200).json(readers)
+		res.status(200).json({readers:readers,user:{username:req.user}})
 	})
 })
 
@@ -223,29 +243,7 @@ app.post("/readers", verifyJWTToken, function(req,res){
 				}
 			}	
 			else if(!reader.periodic){
-				var timeValue =(reader.time[1] ? reader.time[1] : "*") +" "+( reader.time[0] ? reader.time[0] : "*")+" * * "+reader.day 
-				var termVal =(reader.time[1] ? Number(reader.time[1])+2 : "*") +" "+( reader.time[0] ? reader.time[0] : "*")+" * * "+reader.day 
-				schedule = nodeSchedule.scheduleJob(timeValue,function(){
-					//create new reader here (fork)
-					let readerReturn=startReader(reader)
-					if (readerReturn){
-						children[reader.name =readerReturn]
-					}
-				});
-			} else {
-				var rule;
-				rule = new nodeSchedule.ReccurenceRule();
-				rule.dayOfWeek=day;
-				rule.hour=time[0];
-				rule.minute=time[1];
-				schedule = nodeSchedule.scheduleJob(rule,function(){
-					//create new reader here (forkvar args=[timeValue];
-					let readerReturn=startReader(reader)
-					if (readerReturn){
-						children[reader.name =readerReturn]
-					}
-				});
-			}
+			} 
 			res.json(JSON.stringify(reader))
 		}
 	})
@@ -261,9 +259,7 @@ app.post("/readers", verifyJWTToken, function(req,res){
 	//res.redirect(redirect to error page)
 
 })
-app.get("/readers/new", function(req,res){
-	res.render("readers/new");
-})
+
 
 app.delete("/sessions/:id", verifyJWTToken,(req,res)=>{
 	let m=Message.find({session:req.params.id}).remove()
@@ -526,6 +522,21 @@ function verifyJWTToken(req,res,next){
 		console.log(err)
 		res.status(411).json({message:"invalid auth token"})
 	})
+}
+
+function scheduleReader(startTime,endtime,readerId){
+	Reader.find({_id:readerId}).then(
+		reader=>{
+			schedule = nodeSchedule.scheduleJob(startTime,function(){
+				startReader(reader).then(
+					result =>{
+						children[reader.name]=result
+					}
+				).catch(err=>{console.log(err)})
+			})
+		}
+		//create new reader here (fork)
+	).catch(err=>{console.log(err)})
 }
 
 async function startReader(reader){

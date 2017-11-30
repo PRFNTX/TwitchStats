@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import axios from "axios"
 import Auth from "../../modules/Auth"
+import Utils from "../../modules/utils"
 
 class Cruncher extends Component{
 	constructor(){
@@ -29,7 +30,7 @@ class Cruncher extends Component{
 		axios.get('/sessions/'+this.props.id+'/streams',Auth.header()).then(
 			result=>{
 				this.setState({
-					streams:result.data
+					streams:result.data,
 				})
 			}
 		).catch(err=>{console.log("failed to get streams")})
@@ -62,43 +63,44 @@ class Cruncher extends Component{
 		console.log(this.params.compare)
 		console.log(this.params.value)
 		console.log(this.params.keys)
-		this.params.keys.filter(val=>val).forEach( (key,i)=>{
+		this.params.keys.forEach( (key,i)=>{
 			switch (this.params.compare[i].selectedIndex){
 				case 0:
 					try{
 						querySet=querySet.filter((val,j)=>{
-							console.log( Number(this.params.value[i]))
+							console.log(val)
+							console.log( Number(this.params.value[i].value))
 							console.log(Number(val[key]))
-							console.log(Number(val[key]) < Number(this.params.value[j]))
-							return  Number(val[key]) < Number(this.params.value[j])});
+							console.log(Number(val[key]) < Number(this.params.value[i].value))
+							return  Number(val[key]) < Number(this.params.value[i].value)});
 					} catch(err){
 						console.log(err)
 					}
 					break;
 				case 1:
 					try{
-						querySet=querySet.filter((val,j)=>{return Number(val[key]) <= Number(this.params.value[j])});
+						querySet=querySet.filter((val,j)=>{return Number(val[key]) <= Number(this.params.value[i].value)});
 					} catch(err){
 						console.log(err)
 					}
 					break;
 				case 2:
 					try{
-						querySet=querySet.filter((val,j)=>{return String(val[key]) === String(this.params.value[j])});
+						querySet=querySet.filter((val,j)=>{return String(val[key]) === String(this.params.value[i].value)});
 					} catch(err){
 						console.log(err)
 					}
 					break;
 				case 3:
 					try{
-						querySet=querySet.filter((val,j)=>{return (Number(val[key]) >= Number(this.params.value[j]))});
+						querySet=querySet.filter((val,j)=>{return (Number(val[key]) >= Number(this.params.value[i].value))});
 					} catch(err){
 						console.log(err)
 					}
 					break;
 				case 4:
 					try{
-						querySet=querySet.filter((val,j)=>{return Number(val[key] > this.params.value[j])});
+						querySet=querySet.filter((val,j)=>{return Number(val[key] > this.params.value[i].value)});
 					} catch(err){
 						console.log(err)
 					}
@@ -110,6 +112,19 @@ class Cruncher extends Component{
 			result:querySet.length
 		})
 	}
+
+	valRef=(ref)=>{
+		if (ref){
+			this.params.value.push(ref)
+		}
+	}
+
+	comRef=(ref)=>{
+		if (ref){
+			this.params.compare.push(ref)
+		}
+	}
+
 
 	render(){
 
@@ -134,8 +149,8 @@ class Cruncher extends Component{
 							<button type="button" onClick={()=>{this.removeKey(val)}} >X</button>
 							<label for={val}>{val}</label>
 							<span> Where:  </span>
-							<input id={val} ref={(ref)=>{this.params.value.push(ref)}} type="text"/>
-							<select ref={(ref)=>this.params.compare.push(ref)}>
+							<input id={val} ref={(ref)=>{this.valRef(ref)}} type="text"/>
+							<select ref={(ref)=>{this.comRef(ref)}}>
 								<option value="less" > {'<'} </option>
 								<option value="lessEq" >  {'<='} </option>
 								<option value="eq" > {'='} </option>
@@ -148,7 +163,8 @@ class Cruncher extends Component{
 		}
 		
 		return(
-			<div>
+			<div className="ui cruncher">
+				
 				<button onClick={()=>{this.setState({set:1})}}> Messages </button>
 				<button onClick={()=>{this.setState({set:2})}}> Streams </button>
 				<form onSubmit={(e)=>{this.addKey(e)}} >
@@ -157,12 +173,12 @@ class Cruncher extends Component{
 					</select>
 					<button> >> </button>
 				</form>
-				<div className="queryer">
+				{this.state.set && <div className="queryer">
 					{qu || ""}
 				<label> Remaining Items: {this.state.result} </label>
 				<button onClick={()=>{this.setState({method:1})}} > Plot </button> <button onClick={()=>{this.setState({method:2})}} > Reduce </button>
-				["",<Plotter plot={this.props.plot} data={this.state.queryResult} />, <Reducer plot={this.props.plot} data={this.state.queryResult} />]
-				</div>
+				{["",<Plotter plot={this.props.plot} data={Utils.inspect(this.state.queryResult)} />, <Reducer className="evalBox" plot={this.props.plot} data={this.state.queryResult} />][this.state.method]}
+				</div>}
 			</div>
 		)
 	}
@@ -170,11 +186,11 @@ class Cruncher extends Component{
 
 class Plotter extends Component{
 	render(){
-		let keys=Object.keys(this.props.data).map((val)=>{
+		let keys=Object.keys(this.props.data[0]).map((val)=>{
 			return <option value={val} >{val}</option> 
 		})
 		return(
-		<form onSubmit={(e)=>{this.props.plot()}}>
+		<form className="evalBox" onSubmit={(e)=>{this.props.plot()}}>
 			<h5>Plot</h5>
 			<label for="x">x-axis:</label>
 			<select id="x">
@@ -256,6 +272,10 @@ class Reducer extends Component{
 		return result
 	}
 
+	length(data){
+		return data.length
+	}
+
 	switcher(index,e){
 		e.preventDefault()
 		switch (index){
@@ -277,6 +297,9 @@ class Reducer extends Component{
 			case 5:
 				this.update(this.stDev);
 				break;
+			case 6:
+				this.update(this.length);
+				break;
 		}
 	}
 
@@ -288,12 +311,12 @@ class Reducer extends Component{
 	}
 
 	render(){
-		let keys=Object.keys(this.props.data).map((val)=>{
+		let keys=Object.keys(this.props.data[0]).map((val)=>{
 			return <option value={val} >{val}</option> 
 		})
 		return(
-		<div>
-			<form onSubmit={(e)=>this.switcher(this.reduce.selectedIndex,e)}>
+		<div className="evalBox" >
+			<form onSubmit={(e)=>this.switcher(this.reduce.selectedIndex,e.nativeEvent)}>
 				<h5>Reduce</h5>
 				<label for="data">Data: </label>
 				<select id="data" ref={(ref)=>{this.key=ref}}>
@@ -307,6 +330,7 @@ class Reducer extends Component{
 					<option value="Mode"> Mode </option>
 					<option value="Median"> Median </option>
 					<option value="Standard Deviation"> Standard Deviation </option>
+					<option value="Length"> Standard Deviation </option>
 				</select>
 				<input type="submit" />
 			</form>

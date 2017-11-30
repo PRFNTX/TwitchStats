@@ -22,7 +22,8 @@ class App extends Component {
   constructor(){
     super();
     this.state={
-      readers:[]
+		readers:[],
+		user:{username:null}
     }
     this.populated=false;
   }
@@ -68,7 +69,7 @@ class App extends Component {
       }
       axios.get("/readers",{headers:{authenticate:Auth.getToken()}}).then(
         (readers)=>{
-          let readerMenu=readers.data.map(val=>{
+          let readerMenu=readers.data.readers.map(val=>{
             return {
               val:val.name,
               link:"/readers/r/"+val.name
@@ -78,6 +79,7 @@ class App extends Component {
           readerMenu.push(post)
           this.setState({
             readers:readerMenu,
+			user:readers.data.user
           })
         }
       )
@@ -109,20 +111,20 @@ class App extends Component {
     }
         let menuItems=[
             {
-                val:"Summary",
+                val:(this.state.user.username || "login"),
                 link:"/dashboard",
                 drop:false,
                 items:[]
             },
             {
                 val:"Readers",
-                link:null,
-                drop:true,
+                link:"/readers",
+                drop:false,
                 items:this.state.readers
             },
             {
-                val:"Analyze",
-                link:"/data",
+                val:"View Data",
+                link:"/view",
                 drop:false,
                 items:[]
             }
@@ -131,7 +133,7 @@ class App extends Component {
       <Router>
         <div>
           <nav>
-            <Menu items={menuItems} />
+            <Menu items={menuItems} user={this.state.user} />
           </nav>
           <Switch>
             {/* Open routes */}

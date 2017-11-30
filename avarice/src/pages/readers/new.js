@@ -5,6 +5,11 @@ import axios from "axios"
 import Auth from "../../modules/Auth"
 
 
+function inspect(value){
+	console.log(value)
+	return value
+}
+
 class NewReader extends Component{
     constructor(){
         super();
@@ -38,46 +43,61 @@ class NewReader extends Component{
     }
 
     componentDidMount(){
-        let dayOptions=this.day
+		{/*}
+        let sDayOptions=this.sDay
+        let eDayOptions=this.eDay
         let Weekdays=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
         let today=new Date();
         let time=new Date();
         today=today.getDay();
         for(var i=0;i<7;i++){
-            dayOptions[i].innerText=Weekdays[(i+today)%7];
+            sDayOptions[i].innerText=Weekdays[(i+today)%7];
+        }
+        for(var i=0;i<7;i++){
+            eDayOptions[i].innerText=Weekdays[(i+today)%7];
         }
         console.log(time.getHours()+":"+time.getMinutes())
-        this.time.value=time.getHours()+":"+time.getMinutes()
+        this.eTime.value=inspect(time.getHours()+":"+time.getMinutes())
+        this.sTime.value=time.getHours()+":"+time.getMinutes()
+		*/}
     }
 
     onSubmit=(e)=>{
         console.log(e)
         e.preventDefault()
         var weekdays=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-        let isPeriodic= e.target.elements.periodic.checked;
-        let period=e.target.elements.period.value;
+        //let isPeriodic= e.target.elements.periodic.checked;
+        //let period=e.target.elements.period.value;
+		/*
         var day=weekdays.indexOf(e.target.elements.startDay.value);
+        var endDay=weekdays.indexOf(e.target.elements.endDay.value);
+        var endTime=e.target.elements.eTime.value.split(":")
         let tempTime=new Date()
         let now = tempTime.getHours()+":"+tempTime.getMinutes()
-        var time = ( !e.target.elements.immediate.checked ? e.target.elements.time.value.split(":") : now );
-        let data=[]
-        e.target.elements.data.forEach((ele)=>{
-            if (ele.checked){
-                data.push(ele.value)
-            }
-        })
+        var time = ( !e.target.elements.immediate.checked ? e.target.elements.sTime.value.split(":") : now );
+		*/
+        //let data=[]
+        //e.target.elements.data.forEach((ele)=>{
+            //if (ele.checked){
+                //data.push(ele.value)
+            //}
+        //})
 
         let reader={
             username:this.username,
+			channel:e.target.elements.channel.value,
             name:e.target.elements.name.value,
-            periodic:isPeriodic,
-            period: period,
+            //periodic:isPeriodic,
+            //period: period,
             immediate: e.target.elements.immediate.checked,
-            day: day,
+            /*day: day,
             time: time,
-            class:e.target.elements.class.value,
+			endDay:endDay,
+			endTime:endTime,
+			*/
+            //class:e.target.elements.class.value,
             allData: e.target.elements.allData.checked,
-            data:data,
+            //data:data,
         }
         let it = JSON.stringify(reader)
     //     fetch('/readers',{
@@ -95,7 +115,6 @@ class NewReader extends Component{
     //         }).catch((err)=>{
     //             console.log(err)
     //         })
-    console.log(Auth.getToken())
     axios.post("/readers",reader,{headers:{authenticate:Auth.getToken()}}).then(
         (res)=>{
             console.log(res);
@@ -106,33 +125,40 @@ class NewReader extends Component{
     }
 
     immediate=()=>{
-        this.date.hidden=this.isImmediate.checked
+        this.start.hidden=this.isImmediate.checked
     }
-    periodic=()=>{
-        this.period.hidden=!this.isPeriodic.checked
-    }
-    datas=()=>{
-        this.dataBlock.hidden=this.dataAll.checked
-    }
+    //periodic=()=>{
+    //    this.period.hidden=!this.isPeriodic.checked
+    //}
+    //datas=()=>{
+    //    this.dataBlock.hidden=this.dataAll.checked
+    //}
     render(){
         let options=this.state.classes.map(val=> {return <option value={val.name} >{val.name}</option>})
         return(
             <div className="container new-reader">
                 <form onSubmit={this.onSubmit}>
                     <div>
-                        <input type="text" name="name" placeholder="Reader name" required />
-                        <input ref={(ref)=>this.isPeriodic=ref} onChange={this.periodic} type="checkbox" id="periodic" name="periodic" /><label htmlFor="periodic">Recurring?</label>
+                        <label htmlFor="channel">Channel: </label><input type="text" name="channel" placeholder="Channel name" required />
                     </div>
+                    <div>
+                        <label htmlFor="name">Reader Name: </label><input type="text" name="name" placeholder="Reader name" required />
+                       {/* <input ref={(ref)=>this.isPeriodic=ref} onChange={this.periodic} type="checkbox" id="periodic" name="periodic" /><label htmlFor="periodic">Recurring?</label> */}
+                    </div>
+					{/*
                     <div ref={(ref)=>this.period=ref} id="period" hidden="true">
                         <label htmlFor="Daily">Daily:</label><input type="radio" name="period" value="daily" id="Daily" />
                         <label htmlFor="Weekly">Weekly:</label><input type="radio" name="period" value="weekly" id="Weekly" />
                     </div>
+					*/}
                     <div>
                         <input ref={(ref)=>this.isImmediate=ref} onChange={this.immediate} type="checkbox" name="immediate" id="startNow" /><label htmlFor="startNow">Start Now</label>
                     </div>
-                    <div ref={(ref)=>this.date=ref} id="date">
-                        <label htmlFor="day">Day:</label>
-                        <select ref={(ref)=>this.day=ref} name="startDay" id="day" required>
+					{/*
+                    <div ref={(ref)=>this.start=ref} id="sDate">
+						<div><label htmlFor="sDate">Start: </label></div>
+                        <label htmlFor="sDay">Day:</label>
+                        <select ref={(ref)=>this.sDay=ref} name="startDay" id="sDay" required>
                             <option className="days">today</option>
                             <option className="days">tommorow</option>
                             <option className="days">The next day</option>
@@ -142,10 +168,28 @@ class NewReader extends Component{
                             <option className="days">etc</option>
                         </select>
                     
-                            <label htmlFor="time">Time:</label>
-                        <input ref={(ref)=>this.time=ref} type="time" name="time" />
+						<label htmlFor="time">Time:</label>
+                        <input ref={(ref)=>this.sTime=ref} type="time" name="sTime" />
+                    </div>
+					<div ref={(ref)=>this.end=ref} id="end">
+					<div><label htmlFor="end">End: </label></div>
+                        <label htmlFor="eDay">Day:</label>
+                        <select ref={(ref)=>this.eDay=ref} name="endDay" id="eDay" required>
+                            <option className="days">today</option>
+                            <option className="days">tommorow</option>
+                            <option className="days">The next day</option>
+                            <option className="days">etc</option>
+                            <option className="days">etc</option>
+                            <option className="days">etc</option>
+                            <option className="days">etc</option>
+                        </select>
+                    
+						<label htmlFor="eTime">Time:</label>
+                        <input ref={(ref)=>this.eTime=ref} type="time" name="eTime" />
                     </div>
                     <div>
+					*/}
+					{/*
                     <label htmlFor="class">Reader Class:</label>
                     <select name="class" id="class" required>
                         {options}
@@ -153,8 +197,9 @@ class NewReader extends Component{
                     <a href="/class/new">New Class (reroutes) </a>
                     </div>
                     <div>
-                    <label>Track:</label>
-                    <div className="block" ><input ref={(ref)=>this.dataAll=ref} onChange={()=>{this.datas()}} id="dataAll" type="checkbox" value="all" name="allData" /><label htmlFor="dataAll">Track All</label></div>
+					*/}
+                    <input ref={(ref)=>this.dataAll=ref} onChange={()=>{this.datas()}} id="dataAll" type="checkbox" value="all" name="allData"  hidden checked/><label hidden htmlFor="dataAll">Track All</label>
+					{/*
                     <div ref={(ref)=>this.dataBlock=ref} id="allData">
                     <div className="block"  >
                         <input id="data1" className="dataType" type="checkbox" name="data" value="data1" /><label htmlFor="data1">data1</label>
@@ -173,7 +218,8 @@ class NewReader extends Component{
                         <input id="data8" className="dataType" type="checkbox" name="data" value="data8" /><label htmlFor="data8">data8</label>
                     </div>
                     </div>
-                    </div>
+					*/}
+                   {/* </div> */}
                 <button>Set Reader</button> 
                 </form>
             </div>

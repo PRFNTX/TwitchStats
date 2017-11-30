@@ -177,16 +177,16 @@ class View extends Component{
 		})
 		return(
 			<div className="spacing">
-				<div className="sessions">
+				<div>
+					<div className="chartgoeshere spacing ">
+						<ReactHighcharts config={this.state.config} ref={(ref)=>this.chart=ref} />
+					</div>
+				</div>
+				<div className="sessions ">
 					{sessions}
 				</div>
 				<div className="explore">
 					{this.state.explore<0 || <SessionExplore viewT={this.viewersTime} messageT={this.messagesTime} messageU={this.messagesUser} sId={this.state.explore} session={this.state.sessions[this.state.explore] } />}
-				</div>
-				<div>
-					<div className="chartgoeshere">
-						<ReactHighcharts config={this.state.config} ref={(ref)=>this.chart=ref} />
-					</div>
 				</div>
 				{this.state.crunch && <ul><Cruncher plot={this.addSeries} id={this.state.sessions[this.state.toCrunch]._id} /></ul>}
 			</div>

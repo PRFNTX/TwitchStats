@@ -22,7 +22,7 @@ class Dashboard extends Component{
     render(){
         //populate readers from database
         return(
-            <div className="dash-main container">
+            <div className="dash-main spacing">
                 <h1> This is the dashboard </h1>
             </div>
         )

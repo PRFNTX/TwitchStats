@@ -3,6 +3,11 @@ import axios from "axios"
 // import { Link } from "react-router-dom"
 import Auth from "../../../modules/Auth"
 
+function inspect(value,name=""){
+	console.log(name,value)
+	return value
+}
+
 class ReaderIcon extends Component{
 	constructor(){
 		super()
@@ -27,6 +32,7 @@ class ReaderIcon extends Component{
 
     }
 
+
 	switch=()=>{
 		let set={
 				name:this.props.obj.name,
@@ -45,12 +51,30 @@ class ReaderIcon extends Component{
 		})
 	}
 
+	schedule=(e)=>{
+		e.preventDefault()
+		let head = Auth.header()
+		let body={}
+		body.sTime=this.sTime.value
+		body.sDay=e.target.elements.sDay.value
+		body.eTime=this.eTime.value
+		body.eDay=e.target.elements.eDay.value
+		console.log("panic?")
+		axios.post("/readers/schedule/"+this.props.obj._id,body,head).then(
+			result=>{
+				console.log("done")
+				this.setState({active:true})
+			}
+		).catch(err=>{console.log("...no")})
+	}
+
+
     render(){
-        //recieves a single db reader details to show
-		console.log("NAME",this.props.obj.name)
+        //reciueves a single db reader details to show
         return(
-            <div className="reader-icon">
-                <h3>{this.props.obj.name}</h3>
+            <div className="reader-icon sixteen wide mobile eight wide tablet four wide computer column">
+                <h3 className="reader-name">{this.props.obj.name}</h3>
+				<h4 className="reader-channel">{this.props.obj.channel||"channel undefined"}</h4>
                 {/*<h3>{this.props.obj.periodic}</h3>
                 <h3>{this.props.obj.period}</h3>
                 <h3>{this.props.obj.immediate}</h3>
@@ -59,8 +83,8 @@ class ReaderIcon extends Component{
                 <h3>{this.props.obj.class}</h3>
                 <h3>{this.props.obj.allData}</h3>
                 <h3>{this.props.obj.data}</h3>*/}
-				{this.state.active ? <button onClick={this.switch}> Stop </button> : <button onClick={this.switch}> Start </button>}
-				<hr/>
+				{this.state.active ? <button className="ui button red square wider " onClick={this.switch}> Stop </button> : <button className="ui button green square wider " onClick={this.switch}> Start </button>}
+				<button className="ui button black square right" onClick={()=>{this.props.del(this.props.obj._id)}} >Delete</button>
             </div>
         )
     }

@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import { Link } from "react-router-dom"
 import MenuDropdown from "./menu-dropdown"
+import Utils from "../modules/utils"
 
 class MenuItem extends Component{
     constructor(){
@@ -40,6 +41,7 @@ class MenuItem extends Component{
        //             link:String
        //         ]
        //     }
+		let active = Utils.inspect(window.location.pathname.split("/")[1])
        let item
        if (this.props.item.drop){
         //    item= <MenuDropdown items={this.props.item.items} />
@@ -53,10 +55,12 @@ class MenuItem extends Component{
         if (this.state.showDrop){
             dropList=<MenuDropdown items={this.props.item.items} />
         }
+
         //use this.props.active(int) to highlight current
         return(
-            <div onMouseLeave={this.drop} onMouseOver={(e)=>this.drop(e,true)} className="menu-item link" style={this.style}>
-                {dropList}
+            //<div onMouseLeave={this.drop} onMouseOver={(e)=>this.drop(e,true)} className="menu-item link" style={this.style}>
+			<div className="item">
+                {/*{dropList*/}
                 {item}
             </div>
         )

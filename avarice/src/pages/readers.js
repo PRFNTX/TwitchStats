@@ -2,8 +2,14 @@ import React, { Component } from "react"
 import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom"
 import axios from "axios"
 import Auth from "../modules/Auth"
+import Utils from "../modules/utils"
 
 import ReaderIcon from "./readers/components/reader-icon"
+
+function inspect(value){
+	console.log("inspect",value)
+	return value
+}
 
 class Readers extends Component{
     constructor(){
@@ -18,7 +24,7 @@ class Readers extends Component{
 			(result)=>{
 				console.log("RESULT",result)
 				this.setState({
-					readers:result.data,
+					readers:result.data.readers,
 				})
 			}).catch((err)=>{
 				console.log("get readers error")
@@ -26,16 +32,28 @@ class Readers extends Component{
 		)
     }
 
+	
+	delete=(id)=>{
+		axios.delete('/readers/'+id,Auth.header()).then(
+			result=>{
+				let newReads=Array.from(this.state.readers).filter(val=>{return (!(val._id===id))})
+				this.setState({
+					readers:newReads
+				})
+			}
+		).catch(err=>{console.log(err)})
+	}
+
     render(){
 		let readers
 		console.log("READERS",this.state.readers)
-		if(this.state.readers){
+		if(inspect(this.state.readers.length)){
 			readers=this.state.readers.map(val=>{
-				return <ReaderIcon obj={val} />
+				return <ReaderIcon del={this.delete} obj={val} />
 			})
 		}
         return(
-            <div className="spacing" >
+            <div className="spacing ui grid padded" >
                 {readers}
             </div>
         )
@@ -43,3 +61,5 @@ class Readers extends Component{
 }
 
 export default Readers
+
+
