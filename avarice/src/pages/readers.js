@@ -53,9 +53,14 @@ class Readers extends Component{
 			})
 		}
         return(
-            <div className="spacing ui grid padded" >
-                {readers}
-            </div>
+			<div>
+				<div className="spacing ui grid padded" >
+					{readers}
+				</div>
+				<div className="bottom">
+					<Link className="ui button square blue center wider" to="/readers/new">New Reader </Link>
+				</div>
+			</div>
         )
     }
 }

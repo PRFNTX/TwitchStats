@@ -145,6 +145,11 @@ a {
 	float:right;
 	
 }
+
+.bottom.bottom{
+	margin:5vh 1vw;
+	text-align:center;
+}
 /*
 
 @media screen and ( max-width:700px ){
