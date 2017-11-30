@@ -22,6 +22,8 @@ var app= express();
 
 var children={};
 
+const PORT = process.env.PORT||3003
+
 mongoose.connect("mongodb://localhost/Avarice");
 
 app.use(bodyParser.urlencoded({extended:true}));
@@ -33,7 +35,8 @@ app.use(bodyParser.json());
 // passport.use(new passportLocal(User.authenticate()))
 // passport.serializeUser(User.serializeUser());
 // passport.deserializeUser(User.deserializeUser())
-app.use(express.static(__dirname +'/public'));
+app.use(express.static(__dirname +'/build'));
+
 
 function register(username, password){
 	return new Promise((resolve,reject)=>{
@@ -468,7 +471,7 @@ app.get('view/messages',(req,res)=>{
 	})
 })
 
-app.listen(3003, function(){
+app.listen(PORT, function(){
 console.log("started on 3003");
 
 })
@@ -581,6 +584,10 @@ async function startReader(reader){
 }
 
 process.on('exit',closeAll)
+
+app.get("*",(req,res)=>{
+	res.sendFile(__dirname+"/build/index.html")
+})
 
 function closeAll(){
 	children.forEach(val=>{
