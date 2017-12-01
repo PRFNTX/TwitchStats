@@ -1,9 +1,9 @@
 import React, { Component } from "react"
 import axios from "axios"
 import Auth from "../../modules/Auth"
-import Utils from "../../modules/utils"
+//import Utils from "../../modules/utils"
 
-class Cruncher extends Component{
+export class Cruncher extends Component{
 	constructor(){
 		super()
 		this.state={
@@ -47,8 +47,6 @@ class Cruncher extends Component{
 	
 	removeKey=(key)=>{
 		let newQ=Array.from(this.state.query)	
-		console.log(key)
-		console.log(newQ)
 		delete newQ[this.state.set-1][key]
 		this.setState({
 			query:newQ,
@@ -60,18 +58,11 @@ class Cruncher extends Component{
 		e.preventDefault()
 
 		let querySet = (this.state.set>1 ? this.state.streams : this.state.messages )
-		console.log(this.params.compare)
-		console.log(this.params.value)
-		console.log(this.params.keys)
 		this.params.keys.forEach( (key,i)=>{
 			switch (this.params.compare[i].selectedIndex){
 				case 0:
 					try{
 						querySet=querySet.filter((val,j)=>{
-							console.log(val)
-							console.log( Number(this.params.value[i].value))
-							console.log(Number(val[key]))
-							console.log(Number(val[key]) < Number(this.params.value[i].value))
 							return  Number(val[key]) < Number(this.params.value[i].value)});
 					} catch(err){
 						console.log(err)
@@ -143,9 +134,8 @@ class Cruncher extends Component{
 		if (this.state.query[this.state.set-1]){
 			qu = Object.keys(this.state.query[this.state.set-1]).map((val,i)=>{
 				//let index=i
-				console.log("PUSH VAL",val)
 				this.params.keys.push(val)
-				return <form id={"f-"+val} onSubmit={(e)=>{this.update(e)}}>
+				return <form key={i} id={"f-"+val} onSubmit={(e)=>{this.update(e)}}>
 							<button type="button" onClick={()=>{this.removeKey(val)}} >X</button>
 							<label for={val}>{val}</label>
 							<span> Where:  </span>
@@ -164,7 +154,9 @@ class Cruncher extends Component{
 		
 		return(
 			<div className="ui cruncher">
-				
+				<div>
+					<label>Feature in Development...</label>
+				</div>
 				<button onClick={()=>{this.setState({set:1})}}> Messages </button>
 				<button onClick={()=>{this.setState({set:2})}}> Streams </button>
 				<form onSubmit={(e)=>{this.addKey(e)}} >
@@ -177,17 +169,17 @@ class Cruncher extends Component{
 					{qu || ""}
 				<label> Remaining Items: {this.state.result} </label>
 				<button onClick={()=>{this.setState({method:1})}} > Plot </button> <button onClick={()=>{this.setState({method:2})}} > Reduce </button>
-				{["",<Plotter plot={this.props.plot} data={Utils.inspect(this.state.queryResult)} />, <Reducer className="evalBox" plot={this.props.plot} data={this.state.queryResult} />][this.state.method]}
+				{["",<Plotter plot={this.props.plot} data={this.state.queryResult} />, <Reducer className="evalBox" plot={this.props.plot} data={this.state.queryResult} />][this.state.method]}
 				</div>}
 			</div>
 		)
 	}
 }
 
-class Plotter extends Component{
+export class Plotter extends Component{
 	render(){
-		let keys=Object.keys(this.props.data[0]).map((val)=>{
-			return <option value={val} >{val}</option> 
+		let keys=Object.keys(this.props.data[0]).map((val,i)=>{
+			return <option key={i} value={val} >{val}</option> 
 		})
 		return(
 		<form className="evalBox" onSubmit={(e)=>{this.props.plot()}}>
@@ -206,7 +198,7 @@ class Plotter extends Component{
 	}
 }
 
-class Reducer extends Component{
+export class Reducer extends Component{
 	constructor(){
 		super();
 		this.state={
@@ -311,8 +303,8 @@ class Reducer extends Component{
 	}
 
 	render(){
-		let keys=Object.keys(this.props.data[0]).map((val)=>{
-			return <option value={val} >{val}</option> 
+		let keys=Object.keys(this.props.data[0]).map((val,i)=>{
+			return <option key={i} value={val} >{val}</option> 
 		})
 		return(
 		<div className="evalBox" >

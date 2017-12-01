@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import {BrowserRouter as Router, Switch, Route, Redirect, Link} from "react-router-dom"
-import logo from './logo.svg';
+import {BrowserRouter as Router, Switch, Route, Redirect} from "react-router-dom"
 import './App.css';
 
 import Landing from "./pages/landing"
 import Readers from "./pages/readers"
 import NewReader from "./pages/readers/new"
 import ShowReader from "./pages/readers/show-reader"
-import Dashboard from "./pages/dashboard.js"
+//import Dashboard from "./pages/dashboard.js"
 import Register from "./pages/register"
 import Login from "./pages/login"
 import View from "./pages/view"
@@ -137,7 +136,7 @@ class App extends Component {
           </nav>
           <Switch>
             {/* Open routes */}
-            <Route path="/" exact component={Landing} />
+            <Route path="/" exact component={Login} />
             {/* noAuth */}
             <Route path="/register" render={()=>{
                   return (this.noAuth() ? <Register readers={this.populateReaders} /> : <Redirect to="/dashboard" />)
@@ -174,7 +173,7 @@ class App extends Component {
             {/* auth empty */}
             <Route path="/logout" render={()=>{
                   this.logout();
-                  this.unpopulateReaders()
+                  //this.unpopulateReaders()
                   return <Redirect to="/" />
                 }
               } />

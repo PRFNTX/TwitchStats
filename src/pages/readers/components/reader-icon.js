@@ -3,10 +3,6 @@ import axios from "axios"
 // import { Link } from "react-router-dom"
 import Auth from "../../../modules/Auth"
 
-function inspect(value,name=""){
-	console.log(name,value)
-	return value
-}
 
 class ReaderIcon extends Component{
 	constructor(){

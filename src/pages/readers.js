@@ -1,15 +1,11 @@
 import React, { Component } from "react"
-import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom"
+import { Link } from "react-router-dom"
 import axios from "axios"
 import Auth from "../modules/Auth"
-import Utils from "../modules/utils"
+//import Utils from "../modules/utils"
 
 import ReaderIcon from "./readers/components/reader-icon"
 
-function inspect(value){
-	console.log("inspect",value)
-	return value
-}
 
 class Readers extends Component{
     constructor(){
@@ -22,7 +18,6 @@ class Readers extends Component{
         //pull readers from database
         axios.get("/readers",{headers:{authenticate:Auth.getToken()}}).then(
 			(result)=>{
-				console.log("RESULT",result)
 				this.setState({
 					readers:result.data.readers,
 				})
@@ -46,10 +41,9 @@ class Readers extends Component{
 
     render(){
 		let readers
-		console.log("READERS",this.state.readers)
-		if(inspect(this.state.readers.length)){
-			readers=this.state.readers.map(val=>{
-				return <ReaderIcon del={this.delete} obj={val} />
+		if(this.state.readers.length){
+			readers=this.state.readers.map((val,i)=>{
+				return <ReaderIcon key={i} del={this.delete} obj={val} />
 			})
 		}
         return(

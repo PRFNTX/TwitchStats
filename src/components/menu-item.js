@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { Link } from "react-router-dom"
-import MenuDropdown from "./menu-dropdown"
-import Utils from "../modules/utils"
+//import MenuDropdown from "./menu-dropdown"
+//import Utils from "../modules/utils"
 
 class MenuItem extends Component{
     constructor(){
@@ -51,7 +51,7 @@ class MenuItem extends Component{
             item= <Link to={this.props.item.link}><span><h2>{this.props.item.val}</h2></span></Link>
        }
 
-        let dropList=[]
+        //let dropList=[]
         //if (this.state.showDrop){
             //dropList=<MenuDropdown items={this.props.item.items} />
         //}

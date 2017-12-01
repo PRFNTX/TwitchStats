@@ -6,8 +6,8 @@ class Menu extends Component{
     render(){
         //items are singles (val, link, drop)
         //optional items component for dropdown
-        let items = this.props.items.map(val=>{
-            return <MenuItem item={val} name={val.link ? val.link.split("/")[1] : ""} />
+        let items = this.props.items.map((val,i)=>{
+            return <MenuItem key={i} item={val} name={val.link ? val.link.split("/")[1] : ""} />
         })
         return(
             <div className="menu pointing ui">

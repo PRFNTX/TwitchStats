@@ -1,5 +1,4 @@
 import React, { Component } from "react"
-import { Link } from "react-router-dom"
 import axios from 'axios'
 import Auth from "../modules/Auth"
 
@@ -16,7 +15,7 @@ class Login extends Component{
                 console.log(user.headers.authenticate)
                 // localStorage.setItem('token',user.headers.authenticate)
                 Auth.authenticateUser(user.headers.authenticate)
-                this.props.readers()
+                //this.props.readers()
                 window.location.pathname="/dashboard"
             },
             (err)=>{

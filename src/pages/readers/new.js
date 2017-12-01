@@ -1,19 +1,14 @@
 import React, { Component } from "react"
-import { Link } from "react-router-dom"
 import axios from "axios"
 
 import Auth from "../../modules/Auth"
 
 
-function inspect(value){
-	console.log(value)
-	return value
-}
 
 class NewReader extends Component{
     constructor(){
         super();
-        this.username;
+        this.username="";
         this.state={
             classes:[
                 {"name":"unable to get classes"}
@@ -42,30 +37,11 @@ class NewReader extends Component{
 
     }
 
-    componentDidMount(){
-		{/*}
-        let sDayOptions=this.sDay
-        let eDayOptions=this.eDay
-        let Weekdays=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
-        let today=new Date();
-        let time=new Date();
-        today=today.getDay();
-        for(var i=0;i<7;i++){
-            sDayOptions[i].innerText=Weekdays[(i+today)%7];
-        }
-        for(var i=0;i<7;i++){
-            eDayOptions[i].innerText=Weekdays[(i+today)%7];
-        }
-        console.log(time.getHours()+":"+time.getMinutes())
-        this.eTime.value=inspect(time.getHours()+":"+time.getMinutes())
-        this.sTime.value=time.getHours()+":"+time.getMinutes()
-		*/}
-    }
 
     onSubmit=(e)=>{
         console.log(e)
         e.preventDefault()
-        var weekdays=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        //var weekdays=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
         //let isPeriodic= e.target.elements.periodic.checked;
         //let period=e.target.elements.period.value;
 		/*
@@ -99,7 +75,7 @@ class NewReader extends Component{
             allData: e.target.elements.allData.checked,
             //data:data,
         }
-        let it = JSON.stringify(reader)
+        //let it = JSON.stringify(reader)
     //     fetch('/readers',{
     //         method:"POST",
     //         headers:{
@@ -134,7 +110,7 @@ class NewReader extends Component{
     //    this.dataBlock.hidden=this.dataAll.checked
     //}
     render(){
-        let options=this.state.classes.map(val=> {return <option value={val.name} >{val.name}</option>})
+        //let options=this.state.classes.map(val=> {return <option value={val.name} >{val.name}</option>})
         return(
             <div className="ui new-reader">
                 <form onSubmit={this.onSubmit}>

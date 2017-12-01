@@ -1,13 +1,12 @@
 import React, { Component } from "react"
 import axios from "axios"
 import ReactHighcharts from "react-highcharts"
-import StreamMeta from "../modules/streamMeta"
-import MessageMeta from "../modules/messageMeta"
 import moment from "moment"
 import Auth from "../modules/Auth"
 import { Session, SessionExplore } from "./view/session"
 import Cruncher from "./view/cruncher"
 
+/*
 function zip(x,y){
 	let ret = [];
 	if (x.length>y.length){
@@ -21,6 +20,7 @@ function zip(x,y){
 	}
 	return ret
 }
+*/
 
 class View extends Component{
 	constructor(){
@@ -41,8 +41,6 @@ class View extends Component{
 	}	
 
 	newSeries=(x,y,name="Unnamed",xtype='datetime')=>{
-		console.log(x,y)
-		console.log()
 		let newCon = this.state.config;
 		newCon.series=[{
 			name:moment(x[0]).format("DD MMMM YYYY"),
@@ -86,7 +84,6 @@ class View extends Component{
 			}
 		}).then(
 			(result)=>{
-				console.log(result.data)
 				let sess=result.data.sessions.map((val,i)=>{
 					return {_id:val._id, start_ts:val.start_ts,msgs:result.data.msgs[i].len,streams:result.data.streams[i].len}
 				})
@@ -107,7 +104,6 @@ class View extends Component{
 		header.query=query
 		axios.get("/se)sions/"+session,header).then(
 			result=>{
-				console.log(result.data)
 				this.newSeries(result.data.x,result.data.y,session)
 			}
 		).catch(err=>{
@@ -130,7 +126,6 @@ class View extends Component{
 	viewersTime=(id)=>{
 		let head=Auth.header()
 		head.headers.type='viewers-time'
-		console.log("Head",head)
 		axios.get("/sessions/"+this.state.sessions[id]._id,head).then(
 			result=>{
 				this.newSeries(result.data.x,result.data.y)	
@@ -141,7 +136,6 @@ class View extends Component{
 	messagesTime=(id)=>{
 		let head=Auth.header()
 		head.headers.type='messages-time'
-		console.log("Head",head)
 		axios.get("/sessions/"+this.state.sessions[id]._id,head).then(
 			result=>{
 				this.newSeries(result.data.bins.map((val,i)=>{
@@ -154,7 +148,6 @@ class View extends Component{
 	messagesUser=(id)=>{
 		let head=Auth.header()
 		head.headers.type='messages-user'
-		console.log("Head",head)
 		axios.get("/sessions/"+this.state.sessions[id]._id,head).then(
 			result=>{
 
@@ -172,8 +165,7 @@ class View extends Component{
 
 	render(){
 		let sessions=this.state.sessions.map((val,i)=>{
-				console.log(val)
-			return <Session crunch={this.crunch} explore={this.explore} destroy={this.destroy} sId={i} date={val.start_ts} msgLen={val.msgs} strLen={val.streams} ></Session>
+			return <Session key={i} crunch={this.crunch} explore={this.explore} destroy={this.destroy} sId={i} date={val.start_ts} msgLen={val.msgs} strLen={val.streams} ></Session>
 		})
 		return(
 			<div className="spacing">
