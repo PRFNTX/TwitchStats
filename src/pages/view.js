@@ -179,10 +179,10 @@ class View extends Component{
 			<div className="spacing">
 				<div>
 					<div className="chartgoeshere spacing ">
-						<ReactHighcharts config={this.state.config} ref={(ref)=>this.chart=ref} />
+						{this.state.config.series.length>0 && <ReactHighcharts config={this.state.config} ref={(ref)=>this.chart=ref} />}
 					</div>
 				</div>
-				<div className="sessions space">
+				<div className="sessions">
 					{sessions}
 				</div>
 				<div className="explore">

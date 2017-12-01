@@ -136,24 +136,53 @@ class NewReader extends Component{
     render(){
         let options=this.state.classes.map(val=> {return <option value={val.name} >{val.name}</option>})
         return(
-            <div className="container new-reader">
+            <div className="ui new-reader">
                 <form onSubmit={this.onSubmit}>
-                    <div>
-                        <label htmlFor="channel">Channel: </label><input type="text" name="channel" placeholder="Channel name" required />
-                    </div>
-                    <div>
-                        <label htmlFor="name">Reader Name: </label><input type="text" name="name" placeholder="Reader name" required />
-                       {/* <input ref={(ref)=>this.isPeriodic=ref} onChange={this.periodic} type="checkbox" id="periodic" name="periodic" /><label htmlFor="periodic">Recurring?</label> */}
-                    </div>
+					<table className="spacing">
+					{/*<div className="center spacing"> */}
+						<tr>
+							<td>
+								<label className="ui label" htmlFor="channel">Channel: </label>
+							</td>
+							<div className="ui labeled input">
+								<div className="ui label">
+									twitch.tv/
+								</div>
+							</div>
+							<div className="ui input">
+								<input type="text" name="channel" placeholder="Channel name" required />
+							</div>
+						{/*</div>*/}
+					</tr>
+					<tr>
+						<td>
+						{/*<div className="center spacing">*/}
+							<label className="ui label" htmlFor="name">Reader Name: </label>
+						</td>
+						<td>
+							<div className="ui input">
+								<input className="ui input" type="text" name="name" placeholder="Reader name" required />
+							   {/* <input ref={(ref)=>this.isPeriodic=ref} onChange={this.periodic} type="checkbox" id="periodic" name="periodic" /><label htmlFor="periodic">Recurring?</label> */}
+							</div>
+						</td>
+					</tr>
+					{/*</div>*/}
 					{/*
                     <div ref={(ref)=>this.period=ref} id="period" hidden="true">
                         <label htmlFor="Daily">Daily:</label><input type="radio" name="period" value="daily" id="Daily" />
                         <label htmlFor="Weekly">Weekly:</label><input type="radio" name="period" value="weekly" id="Weekly" />
                     </div>
 					*/}
-                    <div>
-                        <input ref={(ref)=>this.isImmediate=ref} onChange={this.immediate} type="checkbox" name="immediate" id="startNow" /><label htmlFor="startNow">Start Now</label>
-                    </div>
+					{/*<div className="center spacing">*/}
+					<tr>	
+						<td>
+							<label className="ui label" htmlFor="startNow">Start Now:</label>
+						</td>
+						<td>
+							<input ref={(ref)=>this.isImmediate=ref} onChange={this.immediate} type="checkbox" name="immediate" id="startNow" />
+						</td>
+					</tr>
+					{/*</div>*/}
 					{/*
                     <div ref={(ref)=>this.start=ref} id="sDate">
 						<div><label htmlFor="sDate">Start: </label></div>
@@ -198,7 +227,7 @@ class NewReader extends Component{
                     </div>
                     <div>
 					*/}
-                    <input ref={(ref)=>this.dataAll=ref} onChange={()=>{this.datas()}} id="dataAll" type="checkbox" value="all" name="allData"  hidden checked/><label hidden htmlFor="dataAll">Track All</label>
+                    <input className="" ref={(ref)=>this.dataAll=ref} onChange={()=>{this.datas()}} id="dataAll" type="checkbox" value="all" name="allData"  hidden checked/><label hidden htmlFor="dataAll">Track All</label>
 					{/*
                     <div ref={(ref)=>this.dataBlock=ref} id="allData">
                     <div className="block"  >
@@ -220,7 +249,10 @@ class NewReader extends Component{
                     </div>
 					*/}
                    {/* </div> */}
-                <button>Set Reader</button> 
+				<div className="spacing" >
+					<button className="ui button green">Set Reader</button> 
+				</div>
+				</table>
                 </form>
             </div>
 

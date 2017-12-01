@@ -20,19 +20,19 @@ export class SessionExplore extends Component{
 	render(){
 		return(
 			<div className="space">
-				<h4>{"Date: "+moment(this.props.session.start_ts).format('MMMM Do YYYY, h:mm:ss a')}</h4>
-				<h5>Plots:</h5>
+				<h4 className="stretch-4" >{"Date: "+moment(this.props.session.start_ts).format('MMMM Do YYYY, h:mm:ss a')}</h4>
+				<h5 className="stretch-text">Plots:</h5>
 				<div>
 					<label htmlFor="viewers-time"></label>
-					<button className="ui button center" onClick={()=>this.props.viewT(this.props.sId)} id="viewers-time">Viewers Over Time </button>
+					<button className="ui button center space half" onClick={()=>this.props.viewT(this.props.sId)} id="viewers-time">Viewers Over Time </button>
 				</div>
 				<div>
 					<label htmlFor="messages-time"></label>
-					<button className="ui button center" onClick={()=>this.props.messageT(this.props.sId)} id="messages-time">Messages/Minute Over Time </button>
+					<button className="ui button center space half" onClick={()=>this.props.messageT(this.props.sId)} id="messages-time">Messages/Minute Over Time </button>
 				</div>
 				<div>
 					<label htmlFor="messages-user"></label>
-					<button className="ui button center" onClick={()=>this.props.messageU(this.props.sId)} id="messages-user">Massages Per User </button>
+					<button className="ui button center space half" onClick={()=>this.props.messageU(this.props.sId)} id="messages-user">Massages Per User </button>
 				</div>
 			</div>
 		)

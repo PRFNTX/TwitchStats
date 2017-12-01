@@ -21,7 +21,6 @@ a {
 }
 
 .new-reader form>div{
-  border:1px solid grey;
 }
 
 
@@ -118,7 +117,7 @@ a {
 
 
 .spacing.spacing {
-	margin:0 auto;
+	margin:1% auto;
 }
 
 .reader-icon{
@@ -151,36 +150,39 @@ a {
 	text-align:center;
 }
 
-.half.half {
-	width:47%;
-	font-size:1.5vw;
-	margin:1%;
-}
-.third.third {
-	width:27%;
-	font-size:1.5vw;
-	margin:1%;
-}
-.fifth.fifth {
-	width:17%;
-	font-size:1vw;
-	margin:1%;
-}
-
-.space{
-	padding:1%;
-}
-
-.center.center{
+.center{
+	text-align:center;
 	margin:1% auto;
+}
+
+.half.half{
+	width:48%;
+	margin:1%;
+	font-size:1.5vw;
+}
+
+.third.third{
+	width:28%;
+	margin:1%;
+	font-size:1.5vw;
+}
+
+.fifth.fifth{
+	width:18%;
+	margin:1%;
+	font-size:1vw;
+}
+
+.stretch-4{
+	font-size:2vw;
 }
 
 .stretch-text{
 	font-size:1.5vw;
 }
 
-.stretch_4, .stretch-4 *{
-	font-size:1.75vw;
+.space{
+	margin:1%;
 }
 /*
 

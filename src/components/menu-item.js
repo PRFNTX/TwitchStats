@@ -41,9 +41,9 @@ class MenuItem extends Component{
        //             link:String
        //         ]
        //     }
-		let active = Utils.inspect(window.location.pathname.split("/")[1])
+		
        let item
-       if (this.props.item.drop){
+       if (this.props.item.drop||!(this.props.item.link)){
         //    item= <MenuDropdown items={this.props.item.items} />
             item= <span ><h2>{this.props.item.val}</h2></span>
        }
@@ -52,9 +52,9 @@ class MenuItem extends Component{
        }
 
         let dropList=[]
-        if (this.state.showDrop){
-            dropList=<MenuDropdown items={this.props.item.items} />
-        }
+        //if (this.state.showDrop){
+            //dropList=<MenuDropdown items={this.props.item.items} />
+        //}
 
         //use this.props.active(int) to highlight current
         return(

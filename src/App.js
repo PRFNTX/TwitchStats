@@ -112,7 +112,7 @@ class App extends Component {
         let menuItems=[
             {
                 val:(this.state.user.username || "login"),
-                link:"/dashboard",
+                link:null,
                 drop:false,
                 items:[]
             },
@@ -149,7 +149,7 @@ class App extends Component {
               } />
             {/* auth required routes */}
             <Route path="/dashboard" render={()=>{
-                  return (this.requireAuth() ? <Dashboard /> : <Redirect to="/login" />)
+                  return (this.requireAuth() ? <Redirect to="/readers" /> : <Redirect to="/login" />)
                 } 
               }/>
             <Route path="/readers/r/:name" render={()=>{
