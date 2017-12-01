@@ -36,6 +36,7 @@ app.use(bodyParser.json());
 // passport.serializeUser(User.serializeUser());
 // passport.deserializeUser(User.deserializeUser())
 app.use(express.static(__dirname +'/build'));
+app.use(express.static(__dirname +'/public'));
 
 
 function register(username, password){

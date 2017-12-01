@@ -128,11 +128,11 @@ class Cruncher extends Component{
 
 	render(){
 
-		let mOpt=Object.keys(this.state.messages[0]).map((val,i)=>{
+		let mOpt=Object.keys(this.state.messages[0]||[]).map((val,i)=>{
 			return <option value={val}> {val} </option>
 		})
 
-		let sOpt=Object.keys(this.state.streams[0]).map((val,i)=>{
+		let sOpt=Object.keys(this.state.streams[0]||[]).map((val,i)=>{
 			return <option value={val}> {val} </option>
 		})
 		delete this.params.compare

@@ -150,6 +150,38 @@ a {
 	margin:5vh 1vw;
 	text-align:center;
 }
+
+.half.half {
+	width:47%;
+	font-size:1.5vw;
+	margin:1%;
+}
+.third.third {
+	width:27%;
+	font-size:1.5vw;
+	margin:1%;
+}
+.fifth.fifth {
+	width:17%;
+	font-size:1vw;
+	margin:1%;
+}
+
+.space{
+	padding:1%;
+}
+
+.center.center{
+	margin:1% auto;
+}
+
+.stretch-text{
+	font-size:1.5vw;
+}
+
+.stretch_4, .stretch-4 *{
+	font-size:1.75vw;
+}
 /*
 
 @media screen and ( max-width:700px ){

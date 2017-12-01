@@ -182,7 +182,7 @@ class View extends Component{
 						<ReactHighcharts config={this.state.config} ref={(ref)=>this.chart=ref} />
 					</div>
 				</div>
-				<div className="sessions ">
+				<div className="sessions space">
 					{sessions}
 				</div>
 				<div className="explore">
