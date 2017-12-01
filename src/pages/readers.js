@@ -23,6 +23,7 @@ class Readers extends Component{
 				})
 			}).catch((err)=>{
 				console.log("get readers error")
+                Auth.failedAuth(err.response.status)
 			}
 		)
     }
@@ -36,11 +37,15 @@ class Readers extends Component{
 					readers:newReads
 				})
 			}
-		).catch(err=>{console.log(err)})
+		).catch(err=>{
+			console.log(err)
+			Auth.failedAuth(err.response.status)
+		})
 	}
 
     render(){
 		let readers
+		//populate readers
 		if(this.state.readers.length){
 			readers=this.state.readers.map((val,i)=>{
 				return <ReaderIcon key={i} del={this.delete} obj={val} />

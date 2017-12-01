@@ -53,6 +53,19 @@ export class Cruncher extends Component{
 		})
 	}
 
+	componentDidRecieveProps(){
+		this.setState({
+			messages:[{}],
+			streams:[{}],
+			parameters:[],
+			set:0,
+			query:[{},{}],
+			result:'',
+			queryResult:[],
+			method:null,
+		})
+	}
+
 
 	update=(e)=>{
 		e.preventDefault()
@@ -119,6 +132,7 @@ export class Cruncher extends Component{
 
 	render(){
 
+		//map keys to select optipns
 		let mOpt=Object.keys(this.state.messages[0]||[]).map((val,i)=>{
 			return <option value={val}> {val} </option>
 		})
@@ -126,10 +140,14 @@ export class Cruncher extends Component{
 		let sOpt=Object.keys(this.state.streams[0]||[]).map((val,i)=>{
 			return <option value={val}> {val} </option>
 		})
+		
+		//reset ref arrays
 		delete this.params.compare
 		delete this.params.keys
 		delete this.params.value
 		this.params={compare:[],value:[],keys:[]}
+
+		//create the forms for filtering data
 		let qu
 		if (this.state.query[this.state.set-1]){
 			qu = Object.keys(this.state.query[this.state.set-1]).map((val,i)=>{
@@ -176,6 +194,8 @@ export class Cruncher extends Component{
 	}
 }
 
+
+//TODO make plotting work
 export class Plotter extends Component{
 	render(){
 		let keys=Object.keys(this.props.data[0]).map((val,i)=>{
@@ -198,6 +218,7 @@ export class Plotter extends Component{
 	}
 }
 
+//TODO make reducers work
 export class Reducer extends Component{
 	constructor(){
 		super();

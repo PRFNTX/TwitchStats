@@ -9,12 +9,14 @@ const TwitchBot= require('twitch-bot'),
 	//Channel=require("./models/stream")
 	axios=require('axios')
 	twitch=require('twitch.tv')
-	env=require("../env/env")
+	env=require("../env/env.js")
 const options={
 	ua:"",
 	apiVersion:"5",
-	clientID:env.clientId
+	clientID:env.clientID
 }
+
+console.log("clientID",env.clientID)
 
 
 const mongoose=require("mongoose")
@@ -30,17 +32,27 @@ for (var i=7;i<process.argv.length;i++){
 }
 
 
+//finds channel id from channel name
+
 let channelID
+console.log("LOGIN",data[2])
+console.log(data[0])
 if ('null'===data[0]){
-	twitch("users?login="+"doublelift",options,(err,res)=>{
+	twitch("users?login="+data[2],options,(err,res)=>{
+		if (err){
+			console.log(err)
+		}
 		console.log(res)
 		channelID=res.users[0]._id
 		console.log("Channel ID: ",channelID)
 	})
-}
+} 
 
 console.log("DATA1",data[1])
 
+//get the reader from the database and start a new session 
+
+//Prom.then(
 Reader.findOne({username:"test",name:data[1]}).then( reader=>{ 
 Session.create({
 	start_ts:Number(moment()),
@@ -65,27 +77,32 @@ session=>{
 	//ban()
 	//close
 
+	//close application when message recieved from parent
+
 	process.on('message',(msg)=>{
 		console.log(msg)
 		if (msg.message==='close'){
 			process.exit();
 		}
 	})
-
+	
+	//create bot
 	const Bot = new TwitchBot({
 		//username : (username ? username : "prfnt"),
 		username : 'prfnt',
 		oauth:oauth,
 		//channel: (channel ? channel : "prfnt"),
-		channel: "doublelift",
+		channel: reader.channel || channelID,
 	})
 
-	//
+	//start processes on join
 	Bot.on('join', ()=>{
 
 		//let dataPoint=new ActivityData()
 		//console.log(dataPoint)
 	//
+
+		//api call every 60 seconds
 		setInterval(()=>{
 			console.log(channelID)
 			twitch("streams/"+channelID,options, (err,res)=>{
@@ -93,12 +110,13 @@ session=>{
 			})
 		},60000)
 		
+		//save messages
 		Bot.on("message", (chatter)=>{
 			console.log("chat  event",chatter.username)
 			createMessage(chatter,session,reader);
 		})
 
-
+		//TODO
 		Bot.on('close',(thing)=>{
 			console.log("CLOSED", thing)
 		})		
@@ -122,7 +140,8 @@ session=>{
 	})
 
 	Bot.on("error", (err)=>{
-		console.log("ooo fuckin... error.")
+		console.log(err)
+		//console.log("ooo fuckin... error.")
 	})
 
 
@@ -134,6 +153,12 @@ session=>{
 	console.log(err)
 	console.log("start failed")
 })
+/*).catch(
+	err=>{
+		console.log(err)
+		console.log("start failed")
+	}
+)*/
 
 function createMessage(chatter, session, reader){
 	Message.create({

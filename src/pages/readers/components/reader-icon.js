@@ -24,6 +24,7 @@ class ReaderIcon extends Component{
 			}
 		).catch(err=>{
 			console.log(err.response)
+			Auth.failedAuth(err.response.status)
 		})
 
     }
@@ -44,6 +45,7 @@ class ReaderIcon extends Component{
 			}
 		).catch(err=>{
 			console.log(err)
+			Auth.failedAuth(err.response.status)
 		})
 	}
 
@@ -61,7 +63,10 @@ class ReaderIcon extends Component{
 				console.log("done")
 				this.setState({active:true})
 			}
-		).catch(err=>{console.log("...no")})
+		).catch(err=>{
+			console.log("...no")
+			Auth.failedAuth(err.response.status)
+		})
 	}
 
 

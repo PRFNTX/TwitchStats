@@ -28,6 +28,7 @@ class View extends Component{
 		this.state={
 			sessions:[],
 			config:{
+				title:"",
 				type:'line',
 				xAxis:{
 					type:'datetime'
@@ -46,9 +47,10 @@ class View extends Component{
 			name:moment(x[0]).format("DD MMMM YYYY"),
 			data:y,
 			pointStart:(xtype==='datetime' ? Number(moment(x[0])) : x[0]),
-			pointInterval:(xtype==='datetime' ? Number(moment(x[1]))-Number(moment(x[0])) : Number(x[1]-x[2]))
+			pointInterval:(xtype==='datetime' ? Number(moment(x[1]))-Number(moment(x[0])) : Number(x[2]-x[1]))
 		}]
-		newCon.xAxis.type='datetime'
+		newCon.xAxis.type=xtype
+		newCon.xAxis.title=(xtype==='datetime' ? "Time" : "User")
 		newCon.xAxis.dateTimeLabelFormats={
 			hour:"%H:%M",
 		}
@@ -123,6 +125,8 @@ class View extends Component{
 		//let chart = this.chart.getChart();
 		////chart.series[0].addPoint({x: 10, y: 12});
 	//}
+
+	//plotting funcitons x3
 	viewersTime=(id)=>{
 		let head=Auth.header()
 		head.headers.type='viewers-time'

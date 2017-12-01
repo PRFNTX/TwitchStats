@@ -40,7 +40,7 @@ class NewReader extends Component{
 
     onSubmit=(e)=>{
         console.log(e)
-        e.preventDefault()
+        //e.preventDefault()
         //var weekdays=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
         //let isPeriodic= e.target.elements.periodic.checked;
         //let period=e.target.elements.period.value;
@@ -58,7 +58,6 @@ class NewReader extends Component{
                 //data.push(ele.value)
             //}
         //})
-
         let reader={
             username:this.username,
 			channel:e.target.elements.channel.value,
@@ -96,7 +95,10 @@ class NewReader extends Component{
             console.log(res);
             this.props.popReaders()
         },
-        (err)=>{console.log(err)}
+        (err)=>{
+			console.log(err)
+			Auth.failedAuth(err.response.status)
+		}
     )
     }
 
@@ -113,7 +115,7 @@ class NewReader extends Component{
         //let options=this.state.classes.map(val=> {return <option value={val.name} >{val.name}</option>})
         return(
             <div className="ui new-reader">
-                <form onSubmit={this.onSubmit}>
+                <form action="/readers" onSubmit={this.onSubmit}>
 					<table className="spacing">
 					{/*<div className="center spacing"> */}
 						<tr>

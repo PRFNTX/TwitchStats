@@ -11,7 +11,6 @@ class Dashboard extends Component{
                 console.log(res);
             },
             (err)=>{
-                console.log("error here:")
                 console.log(err.response)
                 Auth.failedAuth(err.response.status)
             }

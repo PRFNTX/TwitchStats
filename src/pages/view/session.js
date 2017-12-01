@@ -1,6 +1,8 @@
 import React, { Component } from "react"
 import moment from "moment"
 
+
+//list component for sessions
 export class Session extends Component{
 	render(){
 		return(
@@ -16,6 +18,7 @@ export class Session extends Component{
 	}
 }
 
+//graph selector for sessions
 export class SessionExplore extends Component{
 	render(){
 		return(

@@ -16,6 +16,9 @@ var express 				= require("express"),
 	// passportLocal			= require('passport-local'),
 	// passportLocalMongoose	= require('passport-local-mongoose');
 
+console.log=function(val,aval){
+	return
+}
 const child_process = require("child_process")
 
 var app= express();
@@ -38,7 +41,7 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname +'/build'));
 app.use(express.static(__dirname +'/public'));
 
-
+//TODO Separate to new file
 function register(username, password){
 	return new Promise((resolve,reject)=>{
 		bcrypt.genSalt(12,(err,salt)=>{
@@ -63,6 +66,7 @@ function register(username, password){
 		})
 	})
 }
+
 
 function verify(user,pass){
 	return new Promise((resolve,reject)=>{
@@ -112,7 +116,6 @@ app.post("/register",(req,res)=>{
 app.post("/login",(req,res)=>{
 	verify(req.body.username,req.body.password).then(
 		(result)=>{
-			console.log(result)
 			res.set({
 				'authenticate':signJWT({username:req.body.username})
 			})
@@ -124,7 +127,9 @@ app.post("/login",(req,res)=>{
 	).catch(err=>console.log(err))
 })
 
+//TODO break separate to readers file
 
+//TODO implement schedules start/stop
 app.post("/readers/schedule/:id",verifyJWTToken, (req,res)=>{
 	let time=req.body.sTime.split(":")
 	let day=req.body.sDay
@@ -139,12 +144,10 @@ app.post("/readers/schedule/:id",verifyJWTToken, (req,res)=>{
 })
 
 app.get("/readers/active",verifyJWTToken, (req,res)=>{
-	console.log("WE DID GET HERE")
 	try{
 		let name=req.query.name;
-		console.log("KEYS")
-		console.log(Object.keys(children))
-		if (children[name]){
+		let keys=(Object.keys(children))
+		if ( keys.indexOf(name>=0) && children[name] ){
 			res.status(200).json({message:"reader active",active:true})
 		} else {
 			res.status(200).json({message:"reader not active",active:false})
@@ -177,9 +180,9 @@ app.post("/readers/active", verifyJWTToken, (req,res)=>{
 
 	} else {
 		try{
-			console.log(reader)
-			console.log(children[reader])
-			children[reader].send({message:'close'})
+			if (children[reader]){
+				children[reader].send({message:'close'})
+			}
 			children[reader]=false
 			res.status(200).json({message:'process closed',active:false})
 		}catch(err){
@@ -193,7 +196,6 @@ app.post("/readers/active", verifyJWTToken, (req,res)=>{
 app.get("/readers/:name", verifyJWTToken, (req,res)=>{
 	Reader.findOne({username:req.user,name:req.params.name},(err, reader)=>{
 		if (err){
-			console.log(err),
 			res.status(401).json({message:"could not find reader"})
 		}
 		res.status(200).json(reader)
@@ -213,12 +215,11 @@ app.get("/readers", verifyJWTToken, function(req,res){
 		if(err){
 			res.status(204).json({message:"error on get"})
 		}
-		console.log(readers[0])
 		res.status(200).json({readers:readers,user:{username:req.user}})
 	})
 })
 
-
+//TODO check and remove
 app.get("/classes", verifyJWTToken, function(req,res){
 	//temp code
 	res.status(200).json({
@@ -232,14 +233,12 @@ app.get("/classes", verifyJWTToken, function(req,res){
 })
 
 app.post("/readers", verifyJWTToken, function(req,res){
-	console.log(req.body)
 	let inReader=req.body
 	Reader.create(inReader,function(err,reader){
 		if(err){
 			console.log(err)
 			console.log("bad things on create reader");
 		} else {
-			console.log(reader)
 			if (inReader.immediate){
 				let readerReturn=startReader(inReader)
 				if (readerReturn){
@@ -284,12 +283,13 @@ app.delete("/sessions/:id", verifyJWTToken,(req,res)=>{
 })
 
 
+//TODO move to analysis file
+//used to graph data
 async function viewersTime(query){
 	return Stream.find(query).then(
 		results=>{
 			let views=results.map(val=>val.viewers)
 			let time=results.map(val=>val._id.getTimestamp())
-			console.log("XY", [time,views])
 			return {x:time,y:views}
 		}
 	)
@@ -303,7 +303,6 @@ async function messagesTime(query,interval){
 				if (!a){
 					return {bin:Number(results[0]._id.getTimestamp()),bins:[0],interval:interval,t0:results[0]._id.getTimestamp()}
 				} else if (Number(b._id.getTimestamp())<(a.bin+interval)){
-					console.log("BINS",a.bins)
 					let newA = a
 					newA.bins[newA.bins.length-1]+=1
 					return newA
@@ -314,7 +313,6 @@ async function messagesTime(query,interval){
 					return newA
 				}
 			},null)
-			console.log("BUCKETS", buckets)
 			return buckets
 		}
 	)
@@ -341,7 +339,6 @@ async function messagesUsers(query){
 					}
 				}
 			},null)
-			console.log("COUNT", counts)
 			return counts
 		}
 	)
@@ -363,11 +360,11 @@ app.get('/sessions/:id/streams',verifyJWTToken,(req,res)=>{
 	).catch(err=>{console.log(err)})
 })
 
+
+//SENDS data for graphs
 app.get('/sessions/:id',verifyJWTToken,(req,res)=>{
-	console.log(req.headers)
 	let query={session:req.params.id}
 	let type=req.headers.type
-	console.log(type)
 	let prom
 	switch (type){
 		case "viewers-time":
@@ -397,7 +394,6 @@ app.get('/sessions',verifyJWTToken, (req,res)=>{
 		result=>{
 			sessionMeta(result).then(
 				lens =>{
-					console.log(lens)
 					res.status(200).json({sessions:result,msgs:lens.msgs,streams:lens.streams})
 				}
 			).catch(err=>{
@@ -415,6 +411,7 @@ app.get('/sessions',verifyJWTToken, (req,res)=>{
 	)
 })
 
+//summarizes the session data by number of messages and number of api calls
 async function sessionMeta(sessions){
 	let ret={}
 	let msgLen
@@ -423,7 +420,6 @@ async function sessionMeta(sessions){
 	let streams = sessions.map(val=>Stream.count({session:val._id}))
 	let pmsg=Promise.all(msgs).then(
 		result=>{
-			console.log(result)
 			return result.map((val,i)=>{return {'session':sessions[i]._id,len:val}})	
 		}
 	).catch(err=>console.log(err))
@@ -435,13 +431,13 @@ async function sessionMeta(sessions){
 	
 	return Promise.all([pmsg,pstrm]).then(
 		results =>{
-			console.log(results)
 			return {msgs:results[0],streams:results[1]}
 		}
 	).catch(err=>{console.log(err)})
 }
 
-app.get('view/streams',(req,res)=>{
+
+app.get('/view/streams',(req,res)=>{
 	let q=req.params.query
 	let rets
 	if (q.all){
@@ -460,7 +456,7 @@ app.get('view/streams',(req,res)=>{
 	})
 })
 
-app.get('view/messages',(req,res)=>{
+app.get('/view/messages',(req,res)=>{
 	let q=req.params.query
 	Message.find({reader:'test'}).then(
 		result=>{
@@ -478,6 +474,9 @@ console.log("started on 3003");
 })
 
 
+//TODO move to separate file
+//token verification utility
+
 function verifyJWT(token){
 	//copied code
 	return new Promise ((resolve,reject)=>{
@@ -489,6 +488,8 @@ function verifyJWT(token){
 		})
 	})
 }
+
+//token signing utility
 
 function signJWT(obj){
 	//copied code
@@ -514,6 +515,8 @@ function signJWT(obj){
 	return token
 }
 
+//token verification middlewhere
+
 function verifyJWTToken(req,res,next){
 	let token =(req.headers.authenticate);
 
@@ -527,6 +530,9 @@ function verifyJWTToken(req,res,next){
 		res.status(411).json({message:"invalid auth token"})
 	})
 }
+
+
+//TODO allow stream scheduling
 
 function scheduleReader(startTime,endtime,readerId){
 	Reader.find({_id:readerId}).then(
@@ -543,21 +549,26 @@ function scheduleReader(startTime,endtime,readerId){
 	).catch(err=>{console.log(err)})
 }
 
+
+//starts the reader using either the name of the reader or the reader object
+
+//function inspect(val){
+	//console.log("inspect",val)
+	//return val
+//}
 async function startReader(reader){
 	let ret=false
 	if (typeof(reader)==="string"){
-		await Reader.find({name:reader}).then(
+		await Reader.findOne({name:reader}).then(
 			result=>{
-				var args=["agents/reader.js",result.name,"process.end.GM_CLIENT_ID", "prfnt",env.oauth,"lara6683"];
-				let toPush=[null,reader,"dataexplicit"]//( !result.allData ? result.data : [null,"data3","dataexplicit"])
+				var args=["agents/reader.js",result.name,"process.end.GM_CLIENT_ID", "prfnt",env.oauth,result.channel||"lara6683"];
+				let toPush=[null,reader,result.channel || ""]//( !result.allData ? result.data : [null,"data3","dataexplicit"])
 				toPush.forEach((val)=>{
 					args.push(val)
 				})
 				try{
 					ret= child_process.fork("./agents/reader.js",{execArgv:args,detached:true})
-					console.log("setting ret")
 				}catch(err){
-					console.log("this false was necessary")
 					ret= false
 				}
 			}
@@ -567,14 +578,13 @@ async function startReader(reader){
 		})
 	} else {
 		let ret
-		var args=["agents/reader.js",reader.name,"process.end.GM_CLIENT_ID", "prfnt",env.oauth,"lara6683"];
-		let toPush=['null',reader.name,"dataexplicit"]// !reader.allData ? reader.data : ['null',"data3","dataexplicit"])
+		var args=["agents/reader.js",reader.name,"process.end.GM_CLIENT_ID", "prfnt",env.oauth,reader.channel||""];
+		let toPush=['null',reader.name,reader.channel || ""]// !reader.allData ? reader.data : ['null',"data3","dataexplicit"])
 		toPush.forEach((val)=>{
 			args.push(val)
 		})
 		try {
 			ret= child_process.fork("./agents/reader.js",{execArgv:args,detached:true});
-			console.log("setting ret")
 		} catch(err){
 			console.log("start, else catch error")
 			console.log(err)
@@ -590,6 +600,8 @@ app.get("*",(req,res)=>{
 	res.sendFile(__dirname+"/build/index.html")
 })
 
+
+//closes all child processes
 function closeAll(){
 	children.forEach(val=>{
 		val.send({message:'close'})
