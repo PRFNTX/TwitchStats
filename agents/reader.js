@@ -16,7 +16,6 @@ const options={
 	clientID:env.clientID
 }
 
-console.log("clientID",env.clientID)
 
 
 const mongoose=require("mongoose")
@@ -35,20 +34,15 @@ for (var i=7;i<process.argv.length;i++){
 //finds channel id from channel name
 
 let channelID
-console.log("LOGIN",data[2])
-console.log(data[0])
 if ('null'===data[0]){
 	twitch("users?login="+data[2],options,(err,res)=>{
 		if (err){
-			console.log(err)
+			//console.log(err)
 		}
-		console.log(res)
 		channelID=res.users[0]._id
-		console.log("Channel ID: ",channelID)
 	})
 } 
 
-console.log("DATA1",data[1])
 
 //get the reader from the database and start a new session 
 

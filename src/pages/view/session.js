@@ -35,7 +35,7 @@ export class SessionExplore extends Component{
 				</div>
 				<div>
 					<label htmlFor="messages-user"></label>
-					<button className="ui button center space half" onClick={()=>this.props.messageU(this.props.sId)} id="messages-user">Massages Per User </button>
+					<button className="ui button center space half" onClick={()=>this.props.messageU(this.props.sId)} id="messages-user">Messages Per User </button>
 				</div>
 			</div>
 		)
