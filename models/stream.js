@@ -11,6 +11,7 @@ const streamSchema = new mongoose.Schema({
 	average_fps:Number,
 	created_at:Date,
 	is_playlist:Boolean,
+    viewerList:[String]
 })
 
 module.exports=mongoose.model('stream',streamSchema)

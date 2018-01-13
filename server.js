@@ -16,9 +16,11 @@ var express 				= require("express"),
 	// passportLocal			= require('passport-local'),
 	// passportLocalMongoose	= require('passport-local-mongoose');
 
+/*
 console.log=function(val,aval){
 	return
 }
+*/
 const child_process = require("child_process")
 
 var app= express();
@@ -29,8 +31,8 @@ const PORT = process.env.PORT||3003
 
 mongoose.connect("mongodb://localhost/Avarice");
 
-app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
+app.use(express.urlencoded({extended:true}));
+app.use(express.json());
 
 //passport
 // app.use(passport.initialize())
@@ -46,21 +48,27 @@ function register(username, password){
 	return new Promise((resolve,reject)=>{
 		bcrypt.genSalt(12,(err,salt)=>{
 			if (err){
-				reject(err)
+			    return reject(err)
 			}
 			bcrypt.hash(password,salt,(err,hash)=>{
 				if (err){
-					reject(err)
+				    return reject(err)
 				}
+                console.log(hash)
 				
 				User.create({
 					username:username,
 					password:hash,
 				}, (err,user)=>{
 					if (err){
-						reject(err)
+                        console.log('hash err')
+					    return reject(err)
 					}
-					resolve(user)					
+                    if (!user){
+                        console.log("null user")
+                        return reject("failed to make user")
+                    }
+				    return resolve(user)
 				})
 			})
 		})
@@ -72,25 +80,26 @@ function verify(user,pass){
 	return new Promise((resolve,reject)=>{
 		User.findOne({'username':user},(err,founduser)=>{
 			if (err){
-				reject(err)
+			    return reject(err)
 			}
-			bcrypt.compare(founduser.password,pass,(err,res)=>{
+            if (!founduser){
+                return reject("user not found")
+            }
+			bcrypt.compare(pass,founduser.password,(err,res)=>{
+                console.log(res)
 				if (err){
 					console.log(err)
-					reject(err)					
-				}
+				    return reject(err)
+                }
 				if (res){
-					resolve(user)
+				    return resolve(user)
 				} else {
-					reject("password mismatch")
+				    return reject("password mismatch")
 				}
 				
 			})
 		})
-	}).catch(err=>{
-		console.log(err);
 	})
-
 }
 
 app.get("/dashboard", verifyJWTToken,(req,res)=>{
@@ -122,9 +131,11 @@ app.post("/login",(req,res)=>{
 			res.status(200).send("/dashboard")
 		},
 		(err)=>{
-			res.status(403).send("/login")
+			res.status(403).send("/login"+err)
 		}
-	).catch(err=>console.log(err))
+	).catch(err=>{
+        res.status(403).send("catch"+err)
+    })
 })
 
 //TODO break separate to readers file
@@ -469,7 +480,7 @@ app.get('/view/messages',(req,res)=>{
 })
 
 app.listen(PORT, function(){
-console.log("started on 3003");
+console.log("started on "+PORT);
 
 })
 

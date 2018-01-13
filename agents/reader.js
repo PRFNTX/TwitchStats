@@ -1,14 +1,17 @@
 
-const TwitchBot= require('twitch-bot'),
+//twitch bot temporary local until repo is updated
+
+const TwitchBot= require('../twitch-bot'),
 	Schedule=require("node-schedule"),
 	moment=require("moment"),
-	Message=require("../models/message")
-	Stream=require("../models/stream")
-	Session=require("../models/session")
-	Reader=require("../models/reader")
+	Message=require("../models/message"),
+    Subscribe=require("../models/subscribe"),
+	Stream=require("../models/stream"),
+	Session=require("../models/session"),
+	Reader=require("../models/reader"),
 	//Channel=require("./models/stream")
-	axios=require('axios')
-	twitch=require('twitch.tv')
+	axios=require('axios'),
+	twitch=require('twitch.tv'),
 	env=require("../env/env.js")
 const options={
 	ua:"",
@@ -39,6 +42,7 @@ if ('null'===data[0]){
 		if (err){
 			//console.log(err)
 		}
+        console.log(res)
 		channelID=res.users[0]._id
 	})
 } 
@@ -47,7 +51,8 @@ if ('null'===data[0]){
 //get the reader from the database and start a new session 
 
 //Prom.then(
-Reader.findOne({username:"test",name:data[1]}).then( reader=>{ 
+Reader.findOne({name:data[1]}).then( reader=>{ 
+console.log(reader)
 Session.create({
 	start_ts:Number(moment()),
 	reader:reader._id,
@@ -86,7 +91,7 @@ session=>{
 		username : 'prfnt',
 		oauth:oauth,
 		//channel: (channel ? channel : "prfnt"),
-		channel: reader.channel || channelID,
+		channels: [reader.channel] || [channelID],
 	})
 
 	//start processes on join
@@ -98,10 +103,32 @@ session=>{
 
 		//api call every 60 seconds
 		setInterval(()=>{
-			console.log(channelID)
-			twitch("streams/"+channelID,options, (err,res)=>{
-				createStream(res.stream,session,reader)
-			})
+            axios.get('https://tmi.twitch.tv/group/user/'+channel+'/chatters').then(
+                result=>{
+                    const chatUsers = result.data.chatters.viewers
+                    twitch("streams/"+channelID,options, (err,res)=>{
+                        const emptyResponse = {
+                            _id:"",
+                            game:"",
+                            viewers:"",
+                            avarage_fps:"",
+                            created_at:"",
+                            is_playlist:""
+                        }
+                        try{
+                            if (err){
+                                return createStream(emptyResponse,session,reader,chatUsers)
+                            }
+                            if (res.stream===null){
+                                return createStream(emptyResponse,session,reader,chatUsers)
+                            }
+                            createStream(res.stream,session,reader,chatUsers)
+                        } catch(err){
+                            console.log(err)
+                        }
+                    })
+                }
+            ).catch(err=>{console.log(err)})
 		},60000)
 		
 		//save messages
@@ -110,26 +137,10 @@ session=>{
 			createMessage(chatter,session,reader);
 		})
 
-		//TODO
-		Bot.on('close',(thing)=>{
-			console.log("CLOSED", thing)
-		})		
-
-		Bot.on('join',(thing)=>{
-			console.log("JOIN", thing)
-		})		
-
-		Bot.on('error',(thing)=>{
-			console.log("ERROR", thing)
-		})		
-
-		Bot.on('ban',(thing)=>{
-			console.log("BAN", thing)
-		})		
-
-		Bot.on('timeout',(thing)=>{
-			console.log("TIMEOUT", thing)
-		})		
+        Bot.on('subscribe',(subscriber)=>{
+            console.log(subscriber.username)
+            createSubscribe(subscriber,session,reader)
+        })
 
 	})
 
@@ -182,8 +193,9 @@ function createMessage(chatter, session, reader){
 }
 
 
-function createStream(result, session,reader){
+function createStream(result, session,reader,viewerList){
 	let data = result;
+    console.log(data)
 	Stream.create({
 		session:session._id,
 		reader:reader._id,
@@ -192,9 +204,24 @@ function createStream(result, session,reader){
 		viewers:data.viewers,
 		avarage_fps:data.average_fps,
 		created_at:data.create_at,
-		is_playlist:data.is_playlist
+		is_playlist:data.is_playlist,
+        viewerList:viewerList
 	}).then(
 		result=>{
 			console.log('Stream write successful')
 		}
 	).catch(err=>{console.log(err)})} 
+
+function createSubscribe(subscriber,session,reader){
+    const newSubscribe={
+        ...subscriber,
+        session:session._id,
+        reader:reader._id,
+        time:Number(moment()),
+    }
+    Subscribe.create(newSubscribe).then(
+        result=>{
+            console.log("Subscriber! " +subscriber['display_name']+" "+subscriber['msg_id']+"bed")
+        }
+    )
+}
