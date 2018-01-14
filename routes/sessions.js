@@ -15,9 +15,10 @@ var express 				= require("express"),
 
 const router = express.Router()
 
-
+/*
 router.use(express.static(__dirname +'/build'));
 router.use(express.static(__dirname +'/public'));
+*/
 
 function verifyJWT(token){
 	//copied code
@@ -126,10 +127,11 @@ router.get('/',verifyJWTToken, (req,res)=>{
 		}
 	)
 })
-
+/*
 router.get("*",(req,res)=>{
 	res.sendFile(__dirname+"/build/index.html")
 })
+*/
 
 
 

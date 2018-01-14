@@ -21,7 +21,7 @@ var app= express();
 
 const PORT = process.env.PORT||3003
 
-mongoose.connect("mongodb://localhost/Avarice");
+mongoose.connect("mongodb://localhost/fakeTest");
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
@@ -121,9 +121,11 @@ app.post("/login",(req,res)=>{
 			res.status(200).send("/dashboard")
 		},
 		(err)=>{
+            console.log('err 1')
 			res.status(403).send("/login"+err)
 		}
 	).catch(err=>{
+            console.log('err 2')
         res.status(403).send("catch"+err)
     })
 })
@@ -288,7 +290,7 @@ function signJWT(obj){
 		obj={}
 	}
 	if (!obj.maxAge || typeof(obj.maxAge)!=="number"){
-		obj.maxAge=3600;
+		obj.maxAge=1000000;
 	}
 
 	obj= _.reduce(obj||{}, (memo, val ,key)=>{

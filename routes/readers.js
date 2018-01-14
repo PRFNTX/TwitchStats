@@ -20,9 +20,10 @@ const child_process = require("child_process")
 const router=express.Router()
 var children={};
 
+/*
 router.use(express.static(__dirname +'/build'));
 router.use(express.static(__dirname +'/public'));
-
+*/
 // on /readers
 
 
@@ -185,9 +186,11 @@ router.post("/", verifyJWTToken, function(req,res){
 
 })
 
+/*
 router.get("*",(req,res)=>{
 	res.sendFile(__dirname+"/build/index.html")
 })
+*/
 
 function Watch(foundReader, summarizeOnEnd=false){
     const watcher = new Watcher('prfnt', foundReader[0].channel)

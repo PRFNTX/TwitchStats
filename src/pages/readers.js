@@ -46,7 +46,7 @@ class Readers extends Component{
     render(){
 		let readers
 		//populate readers
-		if(this.state.readers.length){
+		if(this.state.readers && this.state.readers.length){
 			readers=this.state.readers.map((val,i)=>{
 				return <ReaderIcon key={i} del={this.delete} obj={val} />
 			})
