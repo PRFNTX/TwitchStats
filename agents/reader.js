@@ -58,6 +58,7 @@ Session.create({
 	reader:reader._id,
 }).then(
 session=>{
+    process.send('session',session._id)
 
 	const startDate=moment().format("DD-MM-YYYY")
 
@@ -102,6 +103,7 @@ session=>{
 	//
 
 		//api call every 60 seconds
+        let sessionMsgCount=0
 		setInterval(()=>{
             axios.get('https://tmi.twitch.tv/group/user/'+channel+'/chatters').then(
                 result=>{
@@ -128,13 +130,21 @@ session=>{
                         }
                     })
                 }
-            ).catch(err=>{console.log(err)})
+            )
+            .catch(err=>{console.log(err)})
 		},60000)
 		
 		//save messages
 		Bot.on("message", (chatter)=>{
+            sessionMsgCount+=1
 			console.log("chat  event",chatter.username)
-			createMessage(chatter,session,reader);
+			createMessage(chatter,session,reader)
+            Message.count({session:session._id}).then(
+                count=>{
+                    console.log('mongo', count)
+                    console.log('iterator', sessionMsgCount)
+                }
+            )
 		})
 
         Bot.on('subscribe',(subscriber)=>{

@@ -16,7 +16,7 @@ class Login extends Component{
                 // localStorage.setItem('token',user.headers.authenticate)
                 Auth.authenticateUser(user.headers.authenticate)
                 //this.props.readers()
-                window.location.pathname="/dashboard"
+                window.location.pathname="/readers"
             },
             (err)=>{
                 console.log(err)

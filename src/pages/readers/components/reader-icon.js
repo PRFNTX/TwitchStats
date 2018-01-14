@@ -8,7 +8,8 @@ class ReaderIcon extends Component{
 	constructor(){
 		super()
 		this.state={
-			active:false
+			active:false,
+            watching:true,
 		}
 	}
 
@@ -27,6 +28,10 @@ class ReaderIcon extends Component{
 			Auth.failedAuth(err.response.status)
 		})
 
+    }
+
+    componentDidMount(){
+        this.isWatching()
     }
 
 
@@ -69,6 +74,39 @@ class ReaderIcon extends Component{
 		})
 	}
 
+    watch = ()=>{
+        axios.post(`/readers/watch/${this.props.obj.name}`,{}, Auth.header()).then(
+            result=>{
+                console.log('started')
+                this.setState({
+                    watching:true,
+                })
+            }
+        ).catch(err=>{
+            console.log(err)
+        })
+    }
+
+    stopWatching = ()=>{
+        axios.delete('/readers/watch/'+this.props.obj.name, Auth.header()).then(
+            result =>{
+                this.setState({
+                    watching:result.data.watching
+                })
+            }
+        ).catch(err=>console.log(err))
+    }
+
+    isWatching = ()=>{
+        axios.get(`/readers/watch/${this.props.obj.name}`, Auth.header()).then(
+            result=>{
+                let watching=result.data.watching
+                this.setState({
+                    watching:watching
+                })
+            }
+        )
+    }
 
     render(){
         //reciueves a single db reader details to show
@@ -85,6 +123,8 @@ class ReaderIcon extends Component{
                 <h3>{this.props.obj.allData}</h3>
                 <h3>{this.props.obj.data}</h3>*/}
 				{this.state.active ? <button className="ui button red square wider " onClick={this.switch}> Stop </button> : <button className="ui button green square wider " onClick={this.switch}> Start </button>}
+                {this.state.watching || <button className='ui button yellow square ' onClick={this.watch}>Watch</button>}
+                {this.state.watching && <button className='ui button red square' onClick={this.stopWatching} >Stop Watch</button>}
 				<button className="ui button black square right" onClick={()=>{this.props.del(this.props.obj._id)}} >Delete</button>
             </div>
         )
