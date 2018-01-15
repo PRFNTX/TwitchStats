@@ -58,7 +58,7 @@ Session.create({
 	reader:reader._id,
 }).then(
 session=>{
-    process.send('session',String(session._id))
+    process.send(String(session._id))
 
 	const startDate=moment().format("DD-MM-YYYY")
 
@@ -139,13 +139,6 @@ session=>{
             sessionMsgCount+=1
 			console.log("chat  event",chatter.username)
 			createMessage(chatter,session,reader)
-            Message.count({session:session._id}).then(
-                count=>{
-                    console.log('mongo', count)
-                    console.log('iterator', sessionMsgCount)
-                }
-            )
-		})
 
         Bot.on('subscribe',(subscriber)=>{
             console.log(subscriber.username)

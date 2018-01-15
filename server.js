@@ -29,10 +29,6 @@ app.use(express.json());
 app.use('/api/readers', readers)
 app.use('/api/sessions', sessions)
 
-app.use((req,res,next)=>{
-    console.log(req)
-    return next()
-})
 app.use(express.static(__dirname +'/build'));
 app.use(express.static(__dirname +'/public'));
 

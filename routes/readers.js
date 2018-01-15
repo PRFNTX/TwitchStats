@@ -202,7 +202,7 @@ function Watch(foundReader, summarizeOnEnd=false){
             result=>{
                 if (result){
                     reader = result
-                    reader.on('session',(id)=>{
+                    reader.on('message',(id)=>{
                         session=id
                     })
                 }
