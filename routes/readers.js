@@ -133,7 +133,7 @@ router.get('/watch/:name', verifyJWTToken, function(req,res){
     }
 })
 
-router.get("/:name", verifyJWTToken, (req,res)=>{
+router.get("/r/:name", verifyJWTToken, (req,res)=>{
 	Reader.findOne({username:req.user,name:req.params.name},(err, reader)=>{
 		if (err){
 			res.status(401).json({message:"could not find reader"})

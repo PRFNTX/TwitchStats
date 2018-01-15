@@ -11,7 +11,7 @@ class ShowReader extends Component{
     }
     componentDidMount(){
 
-        axios.get("/api/readers/"+this.props.params.name,{
+        axios.get("/api/readers/r/"+this.props.params.name,{
             // query:{
                 // name:this.params.name
             // },
