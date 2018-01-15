@@ -1,5 +1,5 @@
 const EventEmitter = require('events')
-const TwitchBot = require('../src/twitch-bot')
+const TwitchBot = require('./twitch-bot')
 const moment = require('moment')
 const env = require('../env/env')
 const Twitch = require('twitch.tv')
