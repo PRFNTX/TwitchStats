@@ -96,8 +96,9 @@ let watching = []
 router.post('/watch/:name', verifyJWTToken, function(req,res){
     const name = req.params.name
     console.log(name)
-    Reader.find({name:name}).then(
+    Reader.findOne({name:name}).then(
         found=>{
+            console.log(found)
             watching.push({name:name, watcher:Watch(found)})
             res.status(200).json({message:'found and added'})
         }
@@ -193,12 +194,13 @@ router.get("*",(req,res)=>{
 */
 
 function Watch(foundReader, summarizeOnEnd=false){
-    const watcher = new Watcher('prfnt', foundReader[0].channel)
+    const watcher = new Watcher('prfnt', foundReader.channel)
     let reader
     let summarizer
     let session
     watcher.on('start',()=>{
-        startReader(reader).then(
+        console.log('start')
+        startReader(foundReader).then(
             result=>{
                 if (result){
                     reader = result
@@ -210,6 +212,7 @@ function Watch(foundReader, summarizeOnEnd=false){
         )
     })
     watcher.on('stop',()=>{
+        console.log('stop')
         if (reader){
             reader.send({message:'close'})
         }
@@ -276,6 +279,7 @@ async function startReader(reader){
 			console.log("catch")
 		})
 	} else {
+        console.log('reader',reader)
 		let ret
 		var args=["agents/reader.js",reader.name,"process.end.GM_CLIENT_ID", "prfnt",env.oauth,reader.channel||""];
 		let toPush=['null',reader.name,reader.channel || ""]// !reader.allData ? reader.data : ['null',"data3","dataexplicit"])

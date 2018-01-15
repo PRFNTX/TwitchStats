@@ -33,7 +33,7 @@ class Watcher extends EventEmitter{
     }
 
     watch(){
-        console.log('five')
+        console.log('Watching')
         const params={
             username:this.username,
             channels:[this.channel],
@@ -41,17 +41,17 @@ class Watcher extends EventEmitter{
         }
         const Bot = new TwitchBot(params)
         Bot.on('join',()=>{
-            console.log('seven')
+            console.log('chat join ')
             this.startTime = moment()
             this.active=false
             this.consecutive = this.timeout
 
             this.interval = setInterval(()=>{
-                    console.log('seven')
+                    console.log(' interval set ')
                     Twitch("streams/"+this.channelID,this.options, (err,res)=>{
                         try{
-                            console.log('this', this)
-                            if (err || res.stream===null){
+                            if (err || !res.stream){
+                                console.log('no stream')
                                 if (this.active && this.consecutive>=this.timeout){
                                     this.consecutive = 0
                                     this.emit('stop')
@@ -61,6 +61,7 @@ class Watcher extends EventEmitter{
                                     return this.consecutive+=1
                                 }
                             } else {
+                                console.log('stream up')
                                 if (!this.active && this.consecutive >= this.timein){
                                     this.consecutive = 0
                                     this.emit('start')
