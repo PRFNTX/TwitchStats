@@ -20,14 +20,14 @@ export class Cruncher extends Component{
 	}
 
 	componentWillMount(){
-		axios.get("/sessions/"+this.props.id+"/messages",Auth.header()).then(
+		axios.get("/api/sessions/"+this.props.id+"/messages",Auth.header()).then(
 			result=>{
 				this.setState({
 					messages:result.data
 				})
 			}
 		).catch(err=>{console.log("failed to get messages")})
-		axios.get('/sessions/'+this.props.id+'/streams',Auth.header()).then(
+		axios.get('/api/sessions/'+this.props.id+'/streams',Auth.header()).then(
 			result=>{
 				this.setState({
 					streams:result.data,
