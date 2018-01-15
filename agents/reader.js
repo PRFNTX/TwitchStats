@@ -58,7 +58,7 @@ Session.create({
 	reader:reader._id,
 }).then(
 session=>{
-    process.send('session',({sessionId:String(session._id)}))
+    process.send('session',String(session._id))
 
 	const startDate=moment().format("DD-MM-YYYY")
 
