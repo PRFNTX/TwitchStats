@@ -21,7 +21,7 @@ var app= express();
 
 const PORT = process.env.PORT||3043
 
-mongoose.connect("mongodb://localhost/fakeTest");
+mongoose.connect("mongodb://localhost:27017/Avarice");
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
