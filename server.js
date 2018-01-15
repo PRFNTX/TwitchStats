@@ -19,7 +19,7 @@ var app= express();
 
 //var children={};
 
-const PORT = process.env.PORT||3043
+const PORT = process.env.PORT||80
 
 mongoose.connect("mongodb://localhost:27017/Avarice");
 
