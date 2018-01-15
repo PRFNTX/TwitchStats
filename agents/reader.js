@@ -139,6 +139,7 @@ session=>{
             sessionMsgCount+=1
 			console.log("chat  event",chatter.username)
 			createMessage(chatter,session,reader)
+        })
 
         Bot.on('subscribe',(subscriber)=>{
             console.log(subscriber.username)
