@@ -14,7 +14,7 @@ class ReaderIcon extends Component{
 	}
 
     componentWillMount(){
-        axios.get("/readers/active",{
+        axios.get("/api/readers/active",{
 			headers:{authenticate:Auth.getToken()},
 			query:this.props.obj.name
 		}).then(
@@ -40,7 +40,7 @@ class ReaderIcon extends Component{
 				name:this.props.obj.name,
 				active:!(this.state.active)
 			}
-		axios.post("/readers/active",set, {
+		axios.post("/api/readers/active",set, {
 			headers:{authenticate:Auth.getToken()},
 		}).then(
 			(result)=>{
@@ -63,7 +63,7 @@ class ReaderIcon extends Component{
 		body.eTime=this.eTime.value
 		body.eDay=e.target.elements.eDay.value
 		console.log("panic?")
-		axios.post("/readers/schedule/"+this.props.obj._id,body,head).then(
+		axios.post("/api/readers/schedule/"+this.props.obj._id,body,head).then(
 			result=>{
 				console.log("done")
 				this.setState({active:true})
@@ -75,7 +75,7 @@ class ReaderIcon extends Component{
 	}
 
     watch = ()=>{
-        axios.post(`/readers/watch/${this.props.obj.name}`,{}, Auth.header()).then(
+        axios.post(`/api/readers/watch/${this.props.obj.name}`,{}, Auth.header()).then(
             result=>{
                 console.log('started')
                 this.setState({
@@ -88,7 +88,7 @@ class ReaderIcon extends Component{
     }
 
     stopWatching = ()=>{
-        axios.delete('/readers/watch/'+this.props.obj.name, Auth.header()).then(
+        axios.delete('/api/readers/watch/'+this.props.obj.name, Auth.header()).then(
             result =>{
                 this.setState({
                     watching:result.data.watching
@@ -98,7 +98,7 @@ class ReaderIcon extends Component{
     }
 
     isWatching = ()=>{
-        axios.get(`/readers/watch/${this.props.obj.name}`, Auth.header()).then(
+        axios.get(`/api/readers/watch/${this.props.obj.name}`, Auth.header()).then(
             result=>{
                 let watching=result.data.watching
                 this.setState({

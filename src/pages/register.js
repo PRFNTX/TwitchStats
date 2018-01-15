@@ -10,7 +10,7 @@ class Register extends Component{
                 username:e.target.children.username.value,
                 password:e.target.children.password.value
             }
-            axios.post("/register",obj).then(
+            axios.post("/api/register",obj).then(
                 (user)=>{
                     console.log(user.headers.authenticate)
                     // localStorage.setItem('token',user.headers.authenticate)

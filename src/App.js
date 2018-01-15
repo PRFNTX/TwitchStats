@@ -60,14 +60,17 @@ class App extends Component {
       this.populated=true;
       let pre={
         val:"All",
-        link:"/readers"
+        link:"/readers/"
       }
       let post={
         val:"New",
         link:"/readers/new"
       }
-      axios.get("/readers",{headers:{authenticate:Auth.getToken()}}).then(
+      axios.get("/api/readers/",{headers:{authenticate:Auth.getToken()}}).then(
         (readers)=>{
+          console.log(readers)
+          if (Array.isArray(readers.data.readers)){
+          }
           let readerMenu=readers.data.readers.map(val=>{
             return {
               val:val.name,

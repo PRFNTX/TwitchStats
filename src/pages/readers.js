@@ -16,7 +16,7 @@ class Readers extends Component{
     }
     componentWillMount(){
         //pull readers from database
-        axios.get("/readers",{headers:{authenticate:Auth.getToken()}}).then(
+        axios.get("/api/readers/",{headers:{authenticate:Auth.getToken()}}).then(
 			(result)=>{
 				this.setState({
 					readers:result.data.readers,
@@ -30,7 +30,7 @@ class Readers extends Component{
 
 	
 	delete=(id)=>{
-		axios.delete('/readers/'+id,Auth.header()).then(
+		axios.delete('/api/readers/'+id,Auth.header()).then(
 			result=>{
 				let newReads=Array.from(this.state.readers).filter(val=>{return (!(val._id===id))})
 				this.setState({

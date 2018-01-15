@@ -1,0 +1,34 @@
+{
+  "name": "twitch-bot",
+  "version": "1.0.9",
+  "description": "Easily create chat bots for Twitch.tv",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/parser.js test/test.js --timeout 5000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kritzware/twitch-bot.git"
+  },
+  "keywords": [
+    "twitchbot",
+    "twitch",
+    "chatbot",
+    "bot",
+    "twitch chatbot",
+    "twitch bot"
+  ],
+  "author": "kritzware <suspiciouspotato@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kritzware/twitch-bot/issues"
+  },
+  "homepage": "https://github.com/kritzware/twitch-bot#readme",
+  "devDependencies": {
+    "chai": "^4.1.0",
+    "mocha": "^3.4.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4"
+  }
+}

@@ -65,7 +65,7 @@ class View extends Component{
 
 	destroy=(id)=>{
 		if(this.state.sessions[id].streams<10){
-			axios.delete("/sessions/"+this.state.sessions[id]._id,Auth.header()).then(
+			axios.delete("/api/sessions/"+this.state.sessions[id]._id,Auth.header()).then(
 				result=>{
 					let newSess=this.state.sessions.filter((val,i)=>!(i===id))
 					this.setState({
@@ -80,7 +80,7 @@ class View extends Component{
 
 	componentDidMount(){
 		
-		axios.get("/sessions",{
+		axios.get("/api/sessions/",{
 			headers:{
 				authenticate:Auth.getToken()
 			}
@@ -104,7 +104,7 @@ class View extends Component{
 	handleClick=(e,session,query={})=>{
 		let header=Auth.header()
 		header.query=query
-		axios.get("/se)sions/"+session,header).then(
+		axios.get("/api/sessions/"+session,header).then(
 			result=>{
 				this.newSeries(result.data.x,result.data.y,session)
 			}
@@ -130,7 +130,7 @@ class View extends Component{
 	viewersTime=(id)=>{
 		let head=Auth.header()
 		head.headers.type='viewers-time'
-		axios.get("/sessions/"+this.state.sessions[id]._id,head).then(
+		axios.get("/api/sessions/"+this.state.sessions[id]._id,head).then(
 			result=>{
 				this.newSeries(result.data.x,result.data.y)	
 			}
@@ -140,7 +140,7 @@ class View extends Component{
 	messagesTime=(id)=>{
 		let head=Auth.header()
 		head.headers.type='messages-time'
-		axios.get("/sessions/"+this.state.sessions[id]._id,head).then(
+		axios.get("/api/sessions/"+this.state.sessions[id]._id,head).then(
 			result=>{
 				this.newSeries(result.data.bins.map((val,i)=>{
 					return Number(moment(result.data.t0))+result.data.interval*i
@@ -152,7 +152,7 @@ class View extends Component{
 	messagesUser=(id)=>{
 		let head=Auth.header()
 		head.headers.type='messages-user'
-		axios.get("/sessions/"+this.state.sessions[id]._id,head).then(
+		axios.get("/api/sessions/"+this.state.sessions[id]._id,head).then(
 			result=>{
 
 				this.newSeries(result.data.messages.map((val,i)=>i),result.data.messages.sort((a,b)=>(b-a)),"messages-user","linear")	

@@ -11,7 +11,7 @@ class ShowReader extends Component{
     }
     componentDidMount(){
 
-        axios.get("/reader/"+this.props.params.name,{
+        axios.get("/api/readers/"+this.props.params.name,{
             // query:{
                 // name:this.params.name
             // },
@@ -28,7 +28,7 @@ class ShowReader extends Component{
             (err)=>{
                 console.log(err)
                 Auth.failedAuth(err.response.status)
-                window.location.pathname="/readers"
+                window.location.pathname="/readers/"
             }
         )
 

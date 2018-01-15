@@ -1,7 +1,7 @@
 
 //twitch bot temporary local until repo is updated
 
-const TwitchBot= require('./twitch-bot'),
+const TwitchBot= require('../src/twitch-bot'),
 	Schedule=require("node-schedule"),
 	moment=require("moment"),
 	Message=require("../models/message"),

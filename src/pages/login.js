@@ -10,7 +10,7 @@ class Login extends Component{
             password:e.target.children.password.value
         }
         console.log(obj)
-        axios.post("/login",obj).then(
+        axios.post("/api/login",obj).then(
             (user)=>{
                 console.log(user.headers.authenticate)
                 // localStorage.setItem('token',user.headers.authenticate)

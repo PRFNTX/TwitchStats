@@ -19,9 +19,9 @@ class NewReader extends Component{
     componentWillMount(){
         //pull class names from database
         // if (!this.updates){
-            axios.get("/classes",{headers:{authenticate:Auth.getToken()}}).then(
+            axios.get("/api/classes",{headers:{authenticate:Auth.getToken()}}).then(
                 (result)=>{
-                    console.log(result.data)
+                    console.log(result)
                     this.setState({
                         classes:result.data.classes
                     })
@@ -90,7 +90,7 @@ class NewReader extends Component{
     //         }).catch((err)=>{
     //             console.log(err)
     //         })
-    axios.post("/readers",reader,{headers:{authenticate:Auth.getToken()}}).then(
+    axios.post("/api/readers/",reader,{headers:{authenticate:Auth.getToken()}}).then(
         (res)=>{
             console.log(res);
             this.props.popReaders()

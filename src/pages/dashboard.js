@@ -6,7 +6,7 @@ import axios from "axios"
 
 class Dashboard extends Component{
     componentDidMount(){
-        axios.get("/dashboard",{headers:{authenticate:Auth.getToken()}}).then(
+        axios.get("/api/dashboard",{headers:{authenticate:Auth.getToken()}}).then(
             (res)=>{
                 console.log(res);
             },
