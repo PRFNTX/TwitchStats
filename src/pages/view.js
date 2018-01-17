@@ -33,7 +33,8 @@ class View extends Component{
 				xAxis:{
 					type:'datetime'
 				},
-				series:[]
+				series:[],
+                summarizing:[]
 			},
 			explore:-1,
 			crunch:false,
@@ -98,6 +99,7 @@ class View extends Component{
 				console.log(err)
 			}
 		)
+        this.isSummarizing()
 	}
 
 
@@ -167,9 +169,48 @@ class View extends Component{
 		})
 	}
 
+    isSummarizing=()=>{
+        axios.get('/api/sessions/summarize', Auth.header()).then(
+            result=>{
+                
+                this.setState({
+                    summarizing:result.data.summaries
+                })
+            }
+        )
+    }
+
+    summarize=(sId)=>{
+        console.log(this.state.session)
+        let id=this.state.sessions[sId]._id
+        axios.post('/api/sessions/summarize/'+id,{},Auth.header()).then(
+            result=>{
+                if (this.state.summarizing.filter(val=>val.id===id).length){
+                    let newSummaries = Array.from(this.state.summarizing)
+                    newSummaries.push({
+                        id:id,
+                        active:result.data.summary
+                    })
+                }
+                else{
+                }
+            }
+        )
+    }
+
 	render(){
 		let sessions=this.state.sessions.map((val,i)=>{
-			return <Session key={i} crunch={this.crunch} explore={this.explore} destroy={this.destroy} sId={i} date={val.start_ts} msgLen={val.msgs} strLen={val.streams} ></Session>
+			return <Session
+                key={i}
+                crunch={this.crunch}
+                explore={this.explore}
+                destroy={this.destroy}
+                summarize={this.summarize}
+                sId={i}
+                date={val.start_ts}
+                msgLen={val.msgs}
+                strLen={val.streams}
+            />
 		})
 		return(
 			<div className="spacing">
@@ -182,9 +223,19 @@ class View extends Component{
 					{sessions}
 				</div>
 				<div className="explore">
-					{this.state.explore<0 || <SessionExplore viewT={this.viewersTime} messageT={this.messagesTime} messageU={this.messagesUser} sId={this.state.explore} session={this.state.sessions[this.state.explore] } />}
+					{this.state.explore<0 || <SessionExplore
+                                                viewT={this.viewersTime}
+                                                messageT={this.messagesTime}
+                                                messageU={this.messagesUser}
+                                                sId={this.state.explore}
+                                                session={this.state.sessions[this.state.explore] }
+                                            />}
 				</div>
-				{this.state.crunch && <ul><Cruncher plot={this.addSeries} id={this.state.sessions[this.state.toCrunch]._id} /></ul>}
+				{this.state.crunch && <ul><Cruncher 
+                                            plot={this.addSeries}
+                                            id={this.state.sessions[this.state.toCrunch]._id}
+                                            />
+                                    </ul>}
 			</div>
 			)
 		}

@@ -107,6 +107,7 @@ session=>{
 		setInterval(()=>{
             axios.get('https://tmi.twitch.tv/group/user/'+channel+'/chatters').then(
                 result=>{
+                    console.log('session',session)
                     const chatUsers = result.data.chatters.viewers
                     twitch("streams/"+channelID,options, (err,res)=>{
                         const emptyResponse = {
@@ -199,7 +200,6 @@ function createMessage(chatter, session, reader){
 
 function createStream(result, session,reader,viewerList){
 	let data = result;
-    console.log(data)
 	Stream.create({
 		session:session._id,
 		reader:reader._id,
@@ -212,6 +212,7 @@ function createStream(result, session,reader,viewerList){
         viewerList:viewerList
 	}).then(
 		result=>{
+            console.log(result)
 			console.log('Stream write successful')
 		}
 	).catch(err=>{console.log(err)})} 

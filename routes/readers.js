@@ -27,6 +27,7 @@ router.use(express.static(__dirname +'/public'));
 // on /readers
 
 
+
 router.post("/schedule/:id",verifyJWTToken, (req,res)=>{
 	let time=req.body.sTime.split(":")
 	let day=req.body.sDay
@@ -212,6 +213,7 @@ function Watch(foundReader, summarizeOnEnd=false){
         )
     })
     watcher.on('stop',()=>{
+        console.log('this')
         console.log('stop')
         if (reader){
             reader.send({message:'close'})

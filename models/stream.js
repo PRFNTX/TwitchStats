@@ -4,7 +4,6 @@ const streamSchema = new mongoose.Schema({
 	session:String,
 	reader:String,
 	date:Date,
-	reader:String,
 	id:Number,
 	game:String,
 	viewers:Number,
