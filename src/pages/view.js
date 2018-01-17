@@ -100,10 +100,6 @@ class View extends Component{
 			(err)=>{
 				console.log(err)
 			}
-<<<<<<< HEAD
-		)
-        this.isSummarizing()
-=======
 		).then(
             sess=>{
                 axios.get('/api/sessions/summarize', Auth.header()).then(
@@ -139,7 +135,6 @@ class View extends Component{
                 )
            }
         )
->>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
 	}
 
 
@@ -212,13 +207,6 @@ class View extends Component{
     isSummarizing=()=>{
         axios.get('/api/sessions/summarize', Auth.header()).then(
             result=>{
-<<<<<<< HEAD
-                
-                this.setState({
-                    summarizing:result.data.summaries
-                })
-            }
-=======
                 let summariesActive = new Array(this.state.sessions.length)
                 this.state.sessions.forEach((session,i)=>{
                     if (result.data.summaries.indexOf(session._id)>=0){
@@ -243,26 +231,10 @@ class View extends Component{
                     }
                 )
             }
->>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
         )
     }
 
     summarize=(sId)=>{
-<<<<<<< HEAD
-        console.log(this.state.session)
-        let id=this.state.sessions[sId]._id
-        axios.post('/api/sessions/summarize/'+id,{},Auth.header()).then(
-            result=>{
-                if (this.state.summarizing.filter(val=>val.id===id).length){
-                    let newSummaries = Array.from(this.state.summarizing)
-                    newSummaries.push({
-                        id:id,
-                        active:result.data.summary
-                    })
-                }
-                else{
-                }
-=======
         let id=this.state.sessions[sId]._id
         axios.post('/api/sessions/summarize/'+id,{},Auth.header()).then(
             result=>{
@@ -292,17 +264,14 @@ class View extends Component{
             result=>{
                 const summary = result.data.summary
                 this.setState({
-                    summary:<Summary summary={summary} summarize={this.recalculateSummary} />,
+                    summary:<Summary summary={summary} summarize={this.recalculateSummary} />
                 })
->>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
             }
         )
     }
 
 	render(){
 		let sessions=this.state.sessions.map((val,i)=>{
-<<<<<<< HEAD
-=======
             let summaryAction = this.state.summaries[i]
             /*
             const summaryState = this.state.summaries[i]
@@ -315,18 +284,14 @@ class View extends Component{
             }
             */
 
->>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
 			return <Session
                 key={i}
                 crunch={this.crunch}
                 explore={this.explore}
                 destroy={this.destroy}
                 summarize={this.summarize}
-<<<<<<< HEAD
-=======
                 getSummary={this.getSummary}
                 summaryState={summaryAction}
->>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
                 sId={i}
                 date={val.start_ts}
                 msgLen={val.msgs}
@@ -352,12 +317,9 @@ class View extends Component{
                                                 session={this.state.sessions[this.state.explore] }
                                             />}
 				</div>
-<<<<<<< HEAD
-=======
                 <div className='summary'>
                     {this.state.summary}
                 </div>
->>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
 				{this.state.crunch && <ul><Cruncher 
                                             plot={this.addSeries}
                                             id={this.state.sessions[this.state.toCrunch]._id}
