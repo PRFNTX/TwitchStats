@@ -5,6 +5,7 @@ import moment from "moment"
 import Auth from "../modules/Auth"
 import { Session, SessionExplore } from "./view/session"
 import Cruncher from "./view/cruncher"
+import Summary from './view/summary'
 
 /*
 function zip(x,y){
@@ -34,11 +35,16 @@ class View extends Component{
 					type:'datetime'
 				},
 				series:[],
+<<<<<<< HEAD
                 summarizing:[]
+=======
+>>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
 			},
 			explore:-1,
 			crunch:false,
-			toCrunch:0
+			toCrunch:0,
+            summaries:[],
+            summary:null
 		}
 	}	
 
@@ -90,16 +96,54 @@ class View extends Component{
 				let sess=result.data.sessions.map((val,i)=>{
 					return {_id:val._id, start_ts:val.start_ts,msgs:result.data.msgs[i].len,streams:result.data.streams[i].len}
 				})
-				//dataSets = result.data.sets.map(val=>{return {val,name,val.x,val.y}})
 				this.setState({
 					sessions:sess
 				})
+                return sess
 			}, 
 			(err)=>{
 				console.log(err)
 			}
+<<<<<<< HEAD
 		)
         this.isSummarizing()
+=======
+		).then(
+            sess=>{
+                axios.get('/api/sessions/summarize', Auth.header()).then(
+                    result=>{
+                        let summariesActive = new Array(sess.length)
+                        sess.forEach((session,i)=>{
+                            if (result.data.summaries.indexOf(session._id)>=0){
+                                summariesActive[i]='active'
+                            }
+                        })
+                        console.log('active',summariesActive)
+                        this.setState({
+                            summaries:summariesActive
+                        })
+                    }
+                ).then(
+                    next=>{
+                        axios.get('/api/sessions/summary',Auth.header()).then(
+                            result=>{
+                                let summariesComplete=Array.from(this.state.summaries)
+                                sess.forEach((session,i)=>{
+                                    if (result.data.summaries.indexOf(session._id)>=0){
+                                        summariesComplete[i]='complete'
+                                    }
+                                })
+                                console.log('complete',summariesComplete)
+                                this.setState({
+                                    summaries:summariesComplete
+                                })
+                            }
+                        )
+                    }
+                )
+           }
+        )
+>>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
 	}
 
 
@@ -172,15 +216,43 @@ class View extends Component{
     isSummarizing=()=>{
         axios.get('/api/sessions/summarize', Auth.header()).then(
             result=>{
+<<<<<<< HEAD
                 
                 this.setState({
                     summarizing:result.data.summaries
                 })
             }
+=======
+                let summariesActive = new Array(this.state.sessions.length)
+                this.state.sessions.forEach((session,i)=>{
+                    if (result.data.summaries.indexOf(session._id)>=0){
+                        summariesActive[i]='active'
+                    }
+                })
+                this.setState({
+                    summarizing:'active'
+                })
+            }
+        ).then(
+            next=>{
+                axios.get('/api/sessions/summary',Auth.header()).then(
+                    result=>{
+                        let summariesComplete=Array.from(this.state.summaries)
+                        result.data.summaries.forEach(val=>{
+                            summariesComplete[this.state.sessions.map(sess=>sess._id).indexOf(val.sessionId)] = 'complete'
+                        })
+                        this.setState({
+                            summaries:summariesComplete
+                        })
+                    }
+                )
+            }
+>>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
         )
     }
 
     summarize=(sId)=>{
+<<<<<<< HEAD
         console.log(this.state.session)
         let id=this.state.sessions[sId]._id
         axios.post('/api/sessions/summarize/'+id,{},Auth.header()).then(
@@ -194,18 +266,71 @@ class View extends Component{
                 }
                 else{
                 }
+=======
+        let id=this.state.sessions[sId]._id
+        axios.post('/api/sessions/summarize/'+id,{},Auth.header()).then(
+            result=>{
+                let newArray = Array.from(this.state.summaries)
+                newArray[sId]=result.data.summary
+                this.setState({
+                    summaries:newArray
+                })
+            }
+        )
+    }
+
+    recalculateSummary(sessionId){
+        axios.delete('/api/sessions/summary/'+sessionId,Auth.header()).then(
+            after=>{
+                axios.post('/api/sessions/summarize/'+sessionId,{},Auth.header())
+            }
+        ).catch(err=>{
+            console.log(err)
+        })
+    }
+
+    getSummary=(sId)=>{
+        console.log('get summary')
+        let id = this.state.sessions[sId]._id
+        axios.get('/api/sessions/summary/'+id,Auth.header()).then(
+            result=>{
+                const summary = result.data.summary
+                this.setState({
+                    summary:<Summary summary={summary} summarize={this.recalculateSummary} />,
+                })
+>>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
             }
         )
     }
 
 	render(){
 		let sessions=this.state.sessions.map((val,i)=>{
+<<<<<<< HEAD
+=======
+            let summaryAction = this.state.summaries[i]
+            /*
+            const summaryState = this.state.summaries[i]
+            if (summaryState==="active"){
+                summaryAction = ()=>{}
+            } else if (summaryState==="complete"){
+                summaryAction = this.getSummary
+            } else {
+                summaryAction = this.summarize
+            }
+            */
+
+>>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
 			return <Session
                 key={i}
                 crunch={this.crunch}
                 explore={this.explore}
                 destroy={this.destroy}
                 summarize={this.summarize}
+<<<<<<< HEAD
+=======
+                getSummary={this.getSummary}
+                summaryState={summaryAction}
+>>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
                 sId={i}
                 date={val.start_ts}
                 msgLen={val.msgs}
@@ -231,6 +356,12 @@ class View extends Component{
                                                 session={this.state.sessions[this.state.explore] }
                                             />}
 				</div>
+<<<<<<< HEAD
+=======
+                <div className='summary'>
+                    {this.state.summary}
+                </div>
+>>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
 				{this.state.crunch && <ul><Cruncher 
                                             plot={this.addSeries}
                                             id={this.state.sessions[this.state.toCrunch]._id}
