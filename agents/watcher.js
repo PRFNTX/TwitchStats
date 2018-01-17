@@ -82,7 +82,7 @@ class Watcher extends EventEmitter{
                             console.log(err)
                         }
                     })
-                },10000
+                },60000
             )
     }
 
