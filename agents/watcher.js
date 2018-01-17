@@ -50,6 +50,7 @@ class Watcher extends EventEmitter{
                     console.log(' interval set ')
                     Twitch("streams/"+this.channelID,this.options, (err,res)=>{
                         try{
+                            console.log('res.stream', res.stream)
                             if (err || !res.stream){
                                 console.log('no stream')
                                 if (this.active && this.consecutive>=this.timeout){

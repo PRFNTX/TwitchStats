@@ -5,29 +5,32 @@ const Stream = require("../models/stream")
 const Summary = require('../models/summary')
 
 const mongoose = require("mongoose")
+const child_process=require('child_process')
 
 mongoose.connect("mongodb://localhost/Avarice")
 
-console.log(process.argv)
-const sessionId = process.argv[4]
+const sessionId = process.argv[2]
 
 Session.find({_id:sessionId}).then(
     session=>{
-
-        let promMsg = Message.find({session:session._id}).then(
+        console.log(session._id)
+        let promMsg = Message.find({session:sessionId}).then(
             found =>{
+                console.log('messages found')
                 return found
             }
         )
 
-        let promStream = Stream.find({session:session._id}).then(
+        let promStream = Stream.find({'session':sessionId}).then(
             found=>{
+                console.log('streams found')
                 return found
             }
         )
 
         Promise.all([promMsg,promStream]).then(
             allFound=>{
+                console.log('all found')
                 const sessionMessages = allFound[0]
                 const sessionStreams = allFound[1]
 
@@ -46,16 +49,17 @@ Session.find({_id:sessionId}).then(
                 function findUser(name,array){
                     const len = array.length
                     let pos = Math.floor(len/2)
-                    let it=1
+                    let it=2
                     if ((pos!==0)&&(pos!==len-1)){
                         let end = endBinSearch(name,array[pos-1],array[pos],array[pos+1])
                         while (!end.done){
                             if (name>array[len]){
-                                pos = pos - Math.ceil(pos/pow(2,it))
+                                pos = len - Math.ceil(pos/Math.pow(2,it))
                             } else {
-                                pos = pos + Math.ceil(pos/pow(2,it))
+                                pos = len + Math.ceil(pos/Math.pow(2,it))
                             }
 
+                            console.log(it)
                             it++
 
                             end=endBinSearch(name,array[pos-1],array[pos],array[pos+1])
@@ -71,6 +75,10 @@ Session.find({_id:sessionId}).then(
                         }
                     }
                 }
+                
+                function slowFind(thing, array){
+                    return array.indexOf(thing)
+                }
 
                 async function uniqueViewers(){
                     let list = sessionStreams[0].viewerList
@@ -78,7 +86,7 @@ Session.find({_id:sessionId}).then(
                     sessionStreams.forEach((val,i)=>{
                         let newViewers = [] 
                         if (i>0){
-                            newViewers = val.viewerList.filter(name=>!findUser(name, list))
+                            newViewers = val.viewerList.filter(name=>!list.includes(name))
                             list = list.concat(newViewers)
                         }
                     })
@@ -87,36 +95,44 @@ Session.find({_id:sessionId}).then(
                 }
 
                 async function viewerRetentionFull(){
-                    let set=0
                     let progress=[]
                     let data=[]
-                    while (set<sessionStreams.length){
+                    for (let set=0;set<sessionStreams.length;set++){
                         let currList = sessionStreams[set].viewerList
-
-                        progress.forEach((user,i)=>{
-                            if (!findUser(user.name, currList)){
-                                user.end=set
-                                data.push(user)
-                                progress.splice(i,1)
-                            }
+                        let clear=[]
+                        progress.filter(val=>{return !(currList.includes(val.name))}).forEach((left)=>{
+                            left.end=set
+                            data.push({...left})
+                            clear.push(left.name)
                         })
-
-                        let filterList = currList.filter(user=>{!findUser(user, progress.map(data=>data.name))})
-
+                        progress = progress.filter(item=>!(clear.includes(item.name)))
+                        
+                        let filterList = currList.filter(val=>!progress.map(name=>name.name).includes(val))
                         filterList.forEach(name=>{
-                            progress.push({
+                            let thing = {
                                 name:name,
                                 start:set
-                            })
+                            }
+                            progress.push({...thing})
                         })
                     }
 
-                    // average watch time
-                    let result = data.reduce((a,b)=>{
-                        return a+b.end-b.start
+                    progress.forEach((user,i)=>{
+                        user.end=sessionStreams.length
+                        data.push(user)
                     })
-                    result = result/data.length
-                    return data
+                    // average watch time
+                    let result = data.length ? data.map(item=>{
+                        return (item.end-item.start)
+                    }) : []
+
+                    result = result.reduce((a,b)=>{
+                        if (!a){
+                            a = 0
+                        }
+                        return a = a + b
+                    })/data.length
+                    return result
                 }
 
                 async function viewerRetentionRandom(){
@@ -128,7 +144,7 @@ Session.find({_id:sessionId}).then(
                         let currList = sessionStreams[set].viewerList
 
                         progress.forEach((user,i)=>{
-                            if (!findUser(user.name, currList)){
+                            if (!(slowFind(user.name, currList)>=0)){
                                 user.end=set
                                 data.push(user)
                                 user.splice(i,1)
@@ -137,7 +153,7 @@ Session.find({_id:sessionId}).then(
                         while (n<Math.ceil(Math.sqrt(currList.length))){
                             let newPoint = currList[Math.Floor(currList.length*Math.random())]
                             let tries = 0
-                            while ((tries<5) && (findUser(newPoint, Object.keys(progress)))){
+                            while ((tries<5) && (!(slowFind(newPoint, Object.keys(progress))>=0))){
                                 newPoint = currList[Math.Floor(currList.length*Math.random())]
                                 tries++
                             }
@@ -146,8 +162,8 @@ Session.find({_id:sessionId}).then(
                                 name:newPoint,
                                 start:set
                             })
-                            
                         }
+                        set++
                     }
                     // average watch time
                     let result = data.reduce((a,b)=>{
@@ -161,13 +177,15 @@ Session.find({_id:sessionId}).then(
                     uniqueViewers(),
                     viewerRetentionFull()
                 ]).then(
-                    result=>{
+                    make=>{
+                        console.log(make)
                         Summary.create({
-                            sessionId:session._id,
-                            uniqueViews: result[0],
-                            viewerRetention: result[1]
+                            sessionId:sessionId,
+                            uniqueViews: make[0],
+                            viewerRetention: make[1]
                         }).then(
                             result=>{
+                                console.log('done')
                                 process.send('done')
                                 process.exit()
                             }

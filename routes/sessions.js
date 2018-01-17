@@ -13,6 +13,8 @@ var express 				= require("express"),
 	twitch					= require('twitch.tv'),
 	env						= require('../env/env');
 
+const child_process = require("child_process")
+
 const router = express.Router()
 
 /*
@@ -44,6 +46,50 @@ function verifyJWTToken(req,res,next){
 		res.status(411).json({message:"invalid auth token"})
 	})
 }
+
+let summarizers = []
+
+router.get('/summarize/:id',verifyJWTToken, (req,res)=>{
+    let active = false
+    summarizers.forEach(item=>{
+        if (item.id===req.params.id){
+            active=true
+        }
+    })
+    res.status(200).json({summary:active})
+})
+
+router.post('/summarize/:id',verifyJWTToken, (req,res)=>{
+    Session.findOne({_id:req.params.id}).then(
+        found=>{
+            let args=['agents/summarize.js',req.params.id]
+            summarizer=child_process.fork("./agents/summarize.js",{execArgv:args,detached:true})
+            summarizers.push({
+                id:req.params.id,
+                summarizer:summarizer
+            })
+        }
+    ).then(
+        data=>{
+            let active = false
+            summarizers.forEach(item=>{
+                if (item.id===req.params.id){
+                    active=true
+                }
+            })
+            res.status(200).json({summary:active})
+        }
+    ).catch(err=>{
+        console.log('summary start err')
+        console.log(err)
+        res.status(500).send(err)
+    })
+})
+
+router.get('/summarize', verifyJWTToken, (req,res)=>{
+    let summaries = summarizers.map(val=>val.id)
+    res.status(200).json({summaries})
+})
 
 router.delete("/:id", verifyJWTToken,(req,res)=>{
 	let m=Message.find({session:req.params.id}).remove()
