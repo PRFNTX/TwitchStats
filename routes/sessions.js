@@ -5,6 +5,7 @@ var express 				= require("express"),
 	Session					= require("../models/session"),
 	Message					= require("../models/message"),
 	Stream					= require("../models/stream"),
+    Summary                 = require("../models/summary")
 	nodeSchedule			= require("node-schedule"),
 	jwt						= require('jsonwebtoken'),
 	User					= require('../models/user'),
@@ -49,14 +50,61 @@ function verifyJWTToken(req,res,next){
 
 let summarizers = []
 
-router.get('/summarize/:id',verifyJWTToken, (req,res)=>{
-    let active = false
-    summarizers.forEach(item=>{
-        if (item.id===req.params.id){
-            active=true
+router.delete('/summary/:id',verifyJWTToken, (req,res)=>{
+    Summary.findOne({sessionId:req.params.id}).remove().then(
+        result=>{
+            res.status(200).json({message:'deleted if it existed'})
         }
+    ).catch(err=>{
+        console.log(err)
+        res.status(500).json({message:"delete failed"})
     })
-    res.status(200).json({summary:active})
+})
+
+router.get('/summary/:id', verifyJWTToken, (req,res)=>{
+    Summary.findOne({sessionId:req.params.id}).then(
+        summary=>{
+            res.status(200).json({summary})
+        }
+    ).catch(err=>{
+        res.status(500).json("failed while finding summary")
+    })
+})
+
+router.get('/summary',verifyJWTToken, (req,res)=>{
+    Summary.find({}).then(
+        found=>{
+            let ids=found.map(summary=>summary.sessionId)
+            res.status(200).json({summaries:ids})
+        }
+    )
+})
+
+router.get('/summarize/:id',verifyJWTToken, (req,res)=>{
+    Summary.find({_id:req.params.id}).then(
+        found=>{
+            if (found.length){
+                res.status(200).json({summary:"complete"})
+            }
+            else {
+                return
+            }
+        }
+    ).then(
+        to=>{
+            let active = false
+            summarizers.forEach(item=>{
+                if (item.id===req.params.id){
+                    active=true
+                }
+            })
+            if (active){
+                res.status(200).json({summary:"active"})
+            } else {
+                res.status(200).json({summary:"none"})
+            }
+        }
+        )
 })
 
 router.post('/summarize/:id',verifyJWTToken, (req,res)=>{
@@ -77,7 +125,11 @@ router.post('/summarize/:id',verifyJWTToken, (req,res)=>{
                     active=true
                 }
             })
-            res.status(200).json({summary:active})
+            if (active){
+                res.status(200).json({summary:'active'})
+            } else {
+                res.status(200).json({summary:''})
+            }
         }
     ).catch(err=>{
         console.log('summary start err')
