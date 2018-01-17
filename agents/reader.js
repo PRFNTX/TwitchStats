@@ -42,7 +42,6 @@ if ('null'===data[0]){
 		if (err){
 			//console.log(err)
 		}
-        console.log(res)
 		channelID=res.users[0]._id
 	})
 } 
@@ -58,7 +57,11 @@ Session.create({
 	reader:reader._id,
 }).then(
 session=>{
-    process.send(String(session._id))
+    try{
+        process.send(String(session._id))
+    } catch(err){
+        console.log(err)
+    }
 
 	const startDate=moment().format("DD-MM-YYYY")
 

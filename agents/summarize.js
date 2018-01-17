@@ -131,7 +131,7 @@ Session.find({_id:sessionId}).then(
                             a = 0
                         }
                         return a = a + b
-                    })/data.length
+                    },0)/(data.length || 1 )
                     return result
                 }
 
@@ -168,8 +168,8 @@ Session.find({_id:sessionId}).then(
                     // average watch time
                     let result = data.reduce((a,b)=>{
                         return a+b.end-b.start
-                    })
-                    result = result/data.length
+                    },0)
+                    result = result/(data.length || 1)
                     return result
                 }
 
@@ -186,7 +186,7 @@ Session.find({_id:sessionId}).then(
                         }).then(
                             result=>{
                                 console.log('done')
-                                process.send('done')
+                                process.send('done', result._id)
                                 process.exit()
                             }
                         )

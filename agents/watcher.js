@@ -4,9 +4,12 @@ const moment = require('moment')
 const env = require('../env/env')
 const Twitch = require('twitch.tv')
 
+const child_process=require('child_process')
+
 class Watcher extends EventEmitter{
-    constructor(username, channel, timeout=10, timein=0){
+    constructor(username, channel, readerName, timeout=1, timein=0){
         super()
+        this.readerName=readerName
         this.channel = channel
         this.username = username
         this.channelId
@@ -30,10 +33,15 @@ class Watcher extends EventEmitter{
         this.consecutive=timeout
         this.startTime
         this.interval
+
+        this.reader
+        this.summarizer
+        this.currentSession
     }
 
     watch(){
         console.log('Watching')
+        /*
         const params={
             username:this.username,
             channels:[this.channel],
@@ -45,7 +53,7 @@ class Watcher extends EventEmitter{
             this.startTime = moment()
             this.active=false
             this.consecutive = this.timeout
-
+            */
             this.interval = setInterval(()=>{
                     console.log(' interval set ')
                     Twitch("streams/"+this.channelID,this.options, (err,res)=>{
@@ -54,9 +62,8 @@ class Watcher extends EventEmitter{
                             if (err || !res.stream){
                                 console.log('no stream')
                                 if (this.active && this.consecutive>=this.timeout){
-                                    this.consecutive = 0
                                     this.emit('stop')
-                                    return this.active=false
+                                    this.stop()
                                 }
                                 else if (!this.active && this.consecutive<this.timeout){
                                     return this.consecutive+=1
@@ -64,9 +71,8 @@ class Watcher extends EventEmitter{
                             } else {
                                 console.log('stream up')
                                 if (!this.active && this.consecutive >= this.timein){
-                                    this.consecutive = 0
                                     this.emit('start')
-                                    return this.active = true
+                                    this.start()
                                 } else {
                                     return this.consecutive +=1
                                 }
@@ -76,15 +82,29 @@ class Watcher extends EventEmitter{
                             console.log(err)
                         }
                     })
-                },60000
+                },10000
             )
-        })
     }
 
     stop(){
         this.active=false
         this.consecutive=0
         this.emit('stop')
+        this.reader.send({message:'close'})
+        this.summarizer = child_process.fork("./agents/summarize.js",{execArgv:["./agents/summarize.js",this.currentSession],detached:true})
+        this.summarizer.on('done',(id)=>{
+            console.log('done', id)
+        })
+    }
+
+    start(){
+        this.active=true
+        this.consecutive=0
+        this.emit('start')
+        this.reader=child_process.fork('./agents/reader.js',{execArgv:['./agents/reader.js',this.readerName,'','prfnt',env.oauth,this.channel,null,this.readerName,this.channel],detached:true})
+        this.reader.on('message',(id)=>{
+            this.currentSession=id
+        })
     }
 }
 
