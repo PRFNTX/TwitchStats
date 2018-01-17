@@ -35,10 +35,6 @@ class View extends Component{
 					type:'datetime'
 				},
 				series:[],
-<<<<<<< HEAD
-                summarizing:[]
-=======
->>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
 			},
 			explore:-1,
 			crunch:false,
