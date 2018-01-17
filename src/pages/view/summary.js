@@ -19,7 +19,7 @@ class Summary extends Component{
                         </tr>
                     </tbody>
                 </table>
-                <button onClick={this.props.summarize(this.props.summary.sessionId)}> Recalculate </button>
+                <button onClick={()=>this.props.summarize(this.props.summary.sessionId)}> Recalculate </button>
             </div>
         )
     }

@@ -258,7 +258,6 @@ class View extends Component{
     }
 
     getSummary=(sId)=>{
-        console.log('get summary')
         let id = this.state.sessions[sId]._id
         axios.get('/api/sessions/summary/'+id,Auth.header()).then(
             result=>{
