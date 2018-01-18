@@ -7,7 +7,7 @@ class Summary extends Component{
         let items = Object.keys(this.props.summary).map(val=>{
             return(
                 <tr>
-                    <td>val</td>
+                    <td>{val}</td>
                     <td>{this.props.summary[val]}</td>
                 </tr>
             )
