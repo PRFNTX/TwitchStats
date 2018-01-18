@@ -144,7 +144,7 @@ Session.find({_id:sessionId}).then(
                         if (!a){
                              a=0
                         }
-                        return a +b.viewerList.length
+                        return a +val.viewerList.length
                     },0)
                 }
 
