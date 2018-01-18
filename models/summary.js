@@ -3,7 +3,15 @@ const mongoose = require('mongoose')
 const summarySchema = new mongoose.Schema({
     sessionId:String,
     uniqueViews:Number,
-    viewerRetention:Number
+    viewSessions:[
+        {
+            username:String,
+            time:Number
+        }
+    ],
+    viewerRetention:Number,
+    newSubList:[String],
+    reSubList:[String]
 })
 
 module.exports = mongoose.model('summary',summarySchema)

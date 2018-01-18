@@ -3,6 +3,7 @@ const Reader = require("../models/reader")
 const Session = require("../models/session")
 const Stream = require("../models/stream")
 const Summary = require('../models/summary')
+const SUbscribe = require('../models/subscribe')
 
 const mongoose = require("mongoose")
 const child_process=require('child_process')
@@ -28,11 +29,19 @@ Session.find({_id:sessionId}).then(
             }
         )
 
-        Promise.all([promMsg,promStream]).then(
+        let promSubs = Subscribe.find({'session':sessionId}).then(
+            found=>{
+                console.log('subs found')
+                return found
+            }
+        )
+
+        Promise.all([promMsg,promStream,promSubs]).then(
             allFound=>{
                 console.log('all found')
                 const sessionMessages = allFound[0]
                 const sessionStreams = allFound[1]
+                const sessionSubs = allFound[2]
 
                 function endBinSearch(find,m1,e,p1){
                     if (e===find){
@@ -46,6 +55,7 @@ Session.find({_id:sessionId}).then(
                     }
                     return {done:false,found:false}
                 }
+
                 function findUser(name,array){
                     const len = array.length
                     let pos = Math.floor(len/2)
@@ -126,13 +136,16 @@ Session.find({_id:sessionId}).then(
                         return (item.end-item.start)
                     }) : []
 
-                    result = result.reduce((a,b)=>{
-                        if (!a){
-                            a = 0
-                        }
-                        return a = a + b
-                    },0)/(data.length || 1 )
                     return result
+                }
+
+                async function averageViewTime(){
+                    return sessionStreams.reduce((a,val)=>{
+                        if (!a){
+                             a=0
+                        }
+                        return a +b.viewerList.length
+                    },0)
                 }
 
                 async function viewerRetentionRandom(){
@@ -173,16 +186,36 @@ Session.find({_id:sessionId}).then(
                     return result
                 }
 
+                async function newSubs(){
+                    let ret = sessionSubs.filter(val=>{
+                        return msg_id==='sub'
+                    }).map(sub=>sub.display_name)
+                    return ret
+                }
+
+                async function reSubs(){
+                    let ret = sessionSubs.filter(val=>{
+                        return msg_id==='resub'
+                    }).map(sub=>sub.display_name)
+                    return ret
+                }
+
                 Promise.all([
                     uniqueViewers(),
-                    viewerRetentionFull()
+                    viewerRetentionFull(),
+                    averageViewTime(),
+                    newSubs(),
+                    reSubs()
                 ]).then(
                     make=>{
                         console.log(make)
                         Summary.create({
                             sessionId:sessionId,
                             uniqueViews: make[0],
-                            viewerRetention: make[1]
+                            viewerRetention: make[2],
+                            viewSessoins: make[1],
+                            newSubList: make[3],
+                            reSubList: make[4]
                         }).then(
                             result=>{
                                 console.log('done')
