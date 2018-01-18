@@ -11,7 +11,12 @@ const summarySchema = new mongoose.Schema({
     ],
     viewerRetention:Number,
     newSubList:[String],
-    reSubList:[String]
+    reSubList:[
+        {
+            username:String,
+            months:Number
+        }
+    ]
 })
 
 module.exports = mongoose.model('summary',summarySchema)

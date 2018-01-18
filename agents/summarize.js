@@ -196,7 +196,13 @@ Session.find({_id:sessionId}).then(
                 async function reSubs(){
                     let ret = sessionSubs.filter(val=>{
                         return msg_id==='resub'
-                    }).map(sub=>sub.display_name)
+                    }).map(sub=>{
+                            return {
+                                username: sub.display_name,
+                                months: sub.msg_param_months
+                            }
+                        }
+                    )
                     return ret
                 }
 
