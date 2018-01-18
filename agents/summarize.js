@@ -3,7 +3,7 @@ const Reader = require("../models/reader")
 const Session = require("../models/session")
 const Stream = require("../models/stream")
 const Summary = require('../models/summary')
-const SUbscribe = require('../models/subscribe')
+const Subscribe = require('../models/subscribe')
 
 const mongoose = require("mongoose")
 const child_process=require('child_process')
