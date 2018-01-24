@@ -57,6 +57,7 @@ Session.create({
 	reader:reader._id,
 }).then(
 session=>{
+
     try{
         process.send(String(session._id))
     } catch(err){
@@ -201,7 +202,7 @@ function createMessage(chatter, session, reader){
 }
 
 
-function createStream(stream,channel, session,reader,viewerList){
+function createStream(stream, session,reader,viewerList){
 	let data = stream;
 	Stream.create({
 		session:session._id,
