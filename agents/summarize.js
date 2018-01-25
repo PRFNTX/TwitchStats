@@ -133,9 +133,9 @@ Session.find({_id:sessionId}).then(
                     })
                     // average watch time
                     let result = data.length ? data.map(item=>{
-                        return (item.end-item.start)
+                        return {username:item.name,time:(item.end-item.start)}
                     }) : []
-
+                    console.log(result)
                     return result
                 }
 
@@ -188,14 +188,14 @@ Session.find({_id:sessionId}).then(
 
                 async function newSubs(){
                     let ret = sessionSubs.filter(val=>{
-                        return msg_id==='sub'
+                        return val.msg_id==='sub'
                     }).map(sub=>sub.display_name)
                     return ret
                 }
 
                 async function reSubs(){
                     let ret = sessionSubs.filter(val=>{
-                        return msg_id==='resub'
+                        return val.msg_id==='resub'
                     }).map(sub=>{
                             return {
                                 username: sub.display_name,
@@ -218,37 +218,22 @@ Session.find({_id:sessionId}).then(
                         Summary.create({
                             sessionId:sessionId,
                             uniqueViews: make[0],
-                            viewerRetention: make[2],
-                            viewSessoins: make[1],
+                            viewerRetention: make[2]/(make[0] || 1),
+                            viewSessions: make[1],
                             newSubList: make[3],
                             reSubList: make[4]
                         }).then(
                             result=>{
                                 console.log('done')
-                                process.send('done', result._id)
                                 process.exit()
                             }
                         )
-                    }
-                ).catch(err=>{
+                })
+                .catch(err=>{
                     console.log(err)
                     process.send('err',err)
                     process.exit()
                 })
-
-
-
-
-
-
-
-
-
-
-
-
-            }
-        )
-        
+        })
     }
 ).catch(err=>console.log(err))

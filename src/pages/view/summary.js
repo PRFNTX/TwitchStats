@@ -8,7 +8,7 @@ class Summary extends Component{
             return(
                 <tr>
                     <td>{val}</td>
-                    <td>{this.props.summary[val]}</td>
+                    <td>{JSON.stringify(this.props.summary[val])}</td>
                 </tr>
             )
         })
