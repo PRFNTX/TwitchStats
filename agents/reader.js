@@ -42,7 +42,6 @@ if ('null'===data[0]){
 		if (err){
 			//console.log(err)
 		}
-        console.log(res)
 		channelID=res.users[0]._id
 	})
 } 
@@ -58,7 +57,12 @@ Session.create({
 	reader:reader._id,
 }).then(
 session=>{
-    process.send(String(session._id))
+
+    try{
+        process.send(String(session._id))
+    } catch(err){
+        console.log(err)
+    }
 
 	const startDate=moment().format("DD-MM-YYYY")
 
@@ -107,7 +111,7 @@ session=>{
 		setInterval(()=>{
             axios.get('https://tmi.twitch.tv/group/user/'+channel+'/chatters').then(
                 result=>{
-                    console.log('session',session)
+                    //console.log('session',session)
                     const chatUsers = result.data.chatters.viewers
                     twitch("streams/"+channelID,options, (err,res)=>{
                         const emptyResponse = {
@@ -198,13 +202,15 @@ function createMessage(chatter, session, reader){
 }
 
 
-function createStream(result, session,reader,viewerList){
-	let data = result;
+function createStream(stream, session,reader,viewerList){
+	let data = stream;
 	Stream.create({
 		session:session._id,
 		reader:reader._id,
 		id:data._id,
 		game:data.game,
+        followers:stream.channel.followers,
+        title: stream.channel.status,
 		viewers:data.viewers,
 		avarage_fps:data.average_fps,
 		created_at:data.create_at,

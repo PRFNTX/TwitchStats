@@ -114,6 +114,9 @@ router.delete('/watch/:name',verifyJWTToken, function(req,res){
     watching.forEach((obj,i)=>{
         if (obj.name===name){
             clearInterval(watching[i].watcher.interval)
+            if (watching[i].watcher.active){
+                watching[i].watcher.stop()
+            }
             watching.splice(i,1)
         }
     })
@@ -195,40 +198,10 @@ router.get("*",(req,res)=>{
 */
 
 function Watch(foundReader, summarizeOnEnd=false){
-    const watcher = new Watcher('prfnt', foundReader.channel)
+    const watcher = new Watcher('prfnt', foundReader.channel, foundReader.name)
     let reader
     let summarizer
     let session
-    watcher.on('start',()=>{
-        console.log('start')
-        startReader(foundReader).then(
-            result=>{
-                if (result){
-                    reader = result
-                    reader.on('message',(id)=>{
-                        session=id
-                    })
-                }
-            }
-        )
-    })
-    watcher.on('stop',()=>{
-        console.log('this')
-        console.log('stop')
-        if (reader){
-            reader.send({message:'close'})
-        }
-        reader = null
-        let summarizer
-        if (summarizeOnEnd){
-            let args=[session,session,session,session,session,session,session]
-            summarizer=child_process.fork("./agents/summarize.js",{execArgv:args,detached:true})
-            summarizer.on('err',console.log)
-            summarizer.on('done',()=>{
-                console.log('done')
-            })
-        }
-    })
     watcher.watch()
     return watcher
 }

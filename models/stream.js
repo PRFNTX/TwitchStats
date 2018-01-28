@@ -7,6 +7,8 @@ const streamSchema = new mongoose.Schema({
 	id:Number,
 	game:String,
 	viewers:Number,
+    followers:Number,
+    title:String,
 	average_fps:Number,
 	created_at:Date,
 	is_playlist:Boolean,

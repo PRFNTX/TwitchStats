@@ -50,16 +50,6 @@ function verifyJWTToken(req,res,next){
 
 let summarizers = []
 
-<<<<<<< HEAD
-router.get('/summarize/:id',verifyJWTToken, (req,res)=>{
-    let active = false
-    summarizers.forEach(item=>{
-        if (item.id===req.params.id){
-            active=true
-        }
-    })
-    res.status(200).json({summary:active})
-=======
 router.delete('/summary/:id',verifyJWTToken, (req,res)=>{
     Summary.findOne({sessionId:req.params.id}).remove().then(
         result=>{
@@ -115,7 +105,6 @@ router.get('/summarize/:id',verifyJWTToken, (req,res)=>{
             }
         }
         )
->>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
 })
 
 router.post('/summarize/:id',verifyJWTToken, (req,res)=>{
@@ -136,15 +125,11 @@ router.post('/summarize/:id',verifyJWTToken, (req,res)=>{
                     active=true
                 }
             })
-<<<<<<< HEAD
-            res.status(200).json({summary:active})
-=======
             if (active){
                 res.status(200).json({summary:'active'})
             } else {
                 res.status(200).json({summary:''})
             }
->>>>>>> dda3eb77b57169e2682fffd2f4f2650fdebcc37c
         }
     ).catch(err=>{
         console.log('summary start err')
