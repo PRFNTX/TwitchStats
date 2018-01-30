@@ -4,6 +4,8 @@ const Session = require("../models/session")
 const Stream = require("../models/stream")
 const Summary = require('../models/summary')
 const Subscribe = require('../models/subscribe')
+const SubMeta = require('../models/SubMeta')
+const TwitchUser = require('../models/twitchUser')
 
 const mongoose = require("mongoose")
 const child_process=require('child_process')
@@ -208,27 +210,125 @@ Session.find({_id:sessionId}).then(
 
                 Promise.all([
                     uniqueViewers(),
-                    viewerRetentionFull(),
                     averageViewTime(),
                     newSubs(),
                     reSubs()
                 ]).then(
                     make=>{
-                        console.log(make)
                         Summary.create({
                             sessionId:sessionId,
                             uniqueViews: make[0],
-                            viewerRetention: make[2]/(make[0] || 1),
-                            viewSessions: make[1],
-                            newSubList: make[3],
-                            reSubList: make[4]
-                        }).then(
+                            viewerRetention: make[1]/(make[0] || 1),
+                            viewSessions: [],
+                            newSubList: make[2],
+                            reSubList: make[3],
+                            channel_id: sessionStreams[0].id,
+                            channel: sessionStreams[0].channel || ""
+                        })
+                        .then(
                             result=>{
                                 console.log('done')
+                                //process.exit()
+                            }
+                        )
+                }).then(
+                    prev=>{
+                        //const sessionMessages = allFound[0]
+                        //const sessionStreams = allFound[1]
+                        //const sessionSubs = allFound[2]
+                        
+                        // for each sub
+                            // find their messages
+                            // find their appearances in chat
+                            // find their absences after appearances
+
+                        SubMetaSchema.find({channel_id:sessionStreams[0].id}).then(
+                            subs=>{
+                                subs.forEach( sub => {
+                                    const msgNum = sessionMessaged.filter((msg)=>{
+                                        return msg.displayName===sub.username
+                                    })
+                                    const times = sessionStreams.filter(
+                                        stream=>{
+                                            return stream.chatters.includes(sub.username)
+                                        }
+                                    ).map((point, i)=>{
+                                        return i
+                                    })
+
+                                    let details = {
+                                        session: sessionId,
+                                        start: times[0],
+                                        duration: times.length,
+                                        messages:msgNum.length
+                                    }
+
+                                    sub.views.push(details)
+                                    let viewTime = sub.views.reduce((a,view)=>{
+                                        if (!a){
+                                            a=0
+                                        }
+                                        return a+view.duration
+                                    },0)
+                                    sub.minuesViewed = viewTime
+                                    sub.averageViewTime = viewTime/(sub.views.length || 1)
+                                    sub.messagesSent+=msgNum.length
+                                    sub.save()
+                                })
+                            }
+                        ).then(next=>{
+
+                            return sessionSubs.map( sub => {
+                                SubMeta.findOne({username:sub.display_name}).then(
+                                    subFound => {
+                                        if (!subFound){
+                                            const msgNum = sessionMessaged.filter((msg)=>{
+                                                return msg.displayName===sub.display_name
+                                            })
+                                            let times = sessionStreams.filter(
+                                                stream => stream.chatters.includes(sub.display_name)
+                                            )
+                                            .map((point,i)=>{
+                                                return i
+                                            })
+
+                                            let details = {
+                                                session: sessionId,
+                                                start: times[0],
+                                                duration: times.length,
+                                                messages: msgNum.length
+                                            }
+
+                                            sub.views.push(details)
+                                            let viewTime = sub.views.reduce((a,view)=>{
+                                                if (!a){
+                                                    a=0
+                                                }
+                                                return a+view.duration
+                                            },0)
+                                            
+                                            SubMeta.create({
+                                                username: sub.display,
+                                                channel_id: sessionStreams[0].id,
+                                                channel: "",
+                                                views: [],
+                                                averageViewTime: viewTime,
+                                                minutesViewed: viewTime,
+                                                messagesSent: msgNum.length,
+                                                firstSubscribe: parseInt(moment())
+                                            })
+                                        }
+                                    }
+                                )
+                            })
+                        }).all(
+                            results =>{
+                                console.log('done the meta')
                                 process.exit()
                             }
                         )
-                })
+                    }
+                )
                 .catch(err=>{
                     console.log(err)
                     process.send('err',err)

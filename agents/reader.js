@@ -208,6 +208,7 @@ function createStream(stream, session,reader,viewerList){
 		session:session._id,
 		reader:reader._id,
 		id:data._id,
+        channel: reader.channel,
 		game:data.game,
         followers:stream.channel.followers,
         title: stream.channel.status,
