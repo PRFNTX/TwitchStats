@@ -205,6 +205,7 @@ class View extends Component{
 	}
 
     isSummarizing=()=>{
+        /*
         axios.get('/api/sessions/summarize', Auth.header()).then(
             result=>{
                 let summariesActive = new Array(this.state.sessions.length)
@@ -232,6 +233,7 @@ class View extends Component{
                 )
             }
         )
+        */
     }
 
     summarize=(sId)=>{

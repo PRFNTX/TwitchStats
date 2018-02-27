@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const TwitchUserSchema = new mongoose.Schema({
+const twitchUserSchema = new mongoose.Schema({
     username: String,
     subscribed_to: [
         {

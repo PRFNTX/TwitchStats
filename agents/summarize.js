@@ -242,7 +242,7 @@ Session.find({_id:sessionId}).then(
                             // find their appearances in chat
                             // find their absences after appearances
 
-                        SubMetaSchema.find({channel_id:sessionStreams[0].id}).then(
+                        SubMeta.find({channel_id:sessionStreams[0].id}).then(
                             subs=>{
                                 subs.forEach( sub => {
                                     const msgNum = sessionMessaged.filter((msg)=>{
@@ -277,11 +277,12 @@ Session.find({_id:sessionId}).then(
                                 })
                             }
                         ).then(next=>{
-
                             return sessionSubs.map( sub => {
                                 SubMeta.findOne({username:sub.display_name}).then(
                                     subFound => {
+                                        console.log('search',subFound)
                                         if (!subFound){
+                                            console.log('not found')
                                             const msgNum = sessionMessaged.filter((msg)=>{
                                                 return msg.displayName===sub.display_name
                                             })
@@ -319,7 +320,7 @@ Session.find({_id:sessionId}).then(
                                             })
                                         }
                                     }
-                                )
+                                ).catch(err=>console.log(err))
                             })
                         }).all(
                             results =>{

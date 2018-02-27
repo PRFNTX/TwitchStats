@@ -1,13 +1,14 @@
 const mongoose = require('mongoose')
 
 const subMetaSchema = new mongoose.Schema({
-    userName: String,
+    username: String,
     channel_id: String,
     channel: String,
     views: [{
         session: String,
         start:Number,
-        duration:Number
+        duration:Number,
+        messages: Number
     }],
     averageViewTime:Number,
     minutesViewed:Number,

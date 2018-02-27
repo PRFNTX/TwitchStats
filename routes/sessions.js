@@ -207,6 +207,7 @@ router.get('/:id',verifyJWTToken,(req,res)=>{
 router.get('/',verifyJWTToken, (req,res)=>{
 	Session.find().then(
 		result=>{
+            console.log(result)
 			sessionMeta(result).then(
 				lens =>{
 					res.status(200).json({sessions:result,msgs:lens.msgs,streams:lens.streams})

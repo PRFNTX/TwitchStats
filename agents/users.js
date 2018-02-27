@@ -15,7 +15,7 @@ const session = process.argv[2]
 const subsOnly = process.argv[3]==='subs'
 console.log(process.argv)
 
-mongoose.connect('mongodb://localhost/Avarice')
+mongoose.connect('mongodb://localhost:27017/Avarice')
 
 Summary.findOne({_id:session}).then(
     summary=>{
