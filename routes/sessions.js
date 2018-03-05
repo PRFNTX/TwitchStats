@@ -183,7 +183,8 @@ router.get('/:id',verifyJWTToken,(req,res)=>{
 	let prom
 	switch (type){
 		case "viewers-time":
-			prom =viewersTime(query);
+			prom = viewersTime(query);
+            console.log(prom)
 			break;
 		case "messages-time":
 			prom=messagesTime(query,60000);
@@ -192,8 +193,10 @@ router.get('/:id',verifyJWTToken,(req,res)=>{
 			prom=messagesUsers(query);
 			break;
 	}
+    console.log(prom)
 	prom.then(
 		results=>{
+            console.log('prefire',results)
 			res.status(200).json(results)
 		}
 	).catch(
@@ -234,19 +237,61 @@ router.get("*",(req,res)=>{
 
 
 
-async function viewersTime(query){
-	return Stream.find(query).then(
+function viewersTime(query){
+    return new Promise((resolve,reject)=>{
+        //const resultStream = new dataStream()
+        let ret= {x:[],y:[]}
+        const resultStream = Stream.where(query).cursor()  //.pipe(resultStream)
+
+        resultStream.on('data',(data)=>{
+            ret.y.push(data.viewers)
+            ret.x.push(data._id.getTimestamp())
+        })
+
+        resultStream.on('end',()=>{
+            return resolve(ret)
+        })
+
+        resultStream.on('error', (err)=>{
+            return reject(err)
+        })
+    })
+        /*then(
 		results=>{
 			let views=results.map(val=>val.viewers)
 			let time=results.map(val=>val._id.getTimestamp())
 			return {x:time,y:views}
 		}
-	)
+	)*/
 }
 
-async function messagesTime(query,interval){
+function messagesTime(query,interval){
 	
-	return Message.find(query).then(
+	return new Promise((resolve,reject)=>{
+        //const resultStream = new dataStream()
+        let buckets = null
+        const resultStream = Message.find(query).cursor() //.pipe(resultStream)
+
+        resultStream.on('data',(data)=>{
+            if (!buckets){
+                buckets = {bin:Number(data._id.getTimestamp()),bins:[0],interval:interval,t0:data._id.getTimestamp()}
+            } else if (Number(data._id.getTimestamp())<(buckets.bin+interval)){
+                buckets.bins[buckets.bins.length-1]+=1
+            } else {
+                buckets.bin +=interval
+                buckets.bins.push(1)
+            }
+        })
+
+        resultStream.on('end',()=>{
+            return resolve(buckets)
+        })
+
+        resultStream.on('error', (err)=>{
+            return reject(err)
+        })
+    })
+    /*then(
 		results=>{
 			let buckets = results.reduce((a,b)=>{
 				if (!a){
@@ -264,11 +309,34 @@ async function messagesTime(query,interval){
 			},null)
 			return buckets
 		}
-	)
+	)*/
 }
 
 async function messagesUsers(query){
-	return Message.find(query).then(
+    return new Promise((resolve,reject)=>{
+        //const resultStream = new dataStream()
+        let counts = {users:[],messages:[]}
+
+        const resultStream = Message.find(query).cursor()  //.pipe(resultStream)
+
+        resultStream.on('data',(data)=>{
+            let index = counts.users.indexOf(data.username)
+            if (index>=0){
+                counts.messages[index]+=1
+            } else {
+                counts.users.push(data.username)
+                counts.messages.push(1)
+            }
+        })
+
+        resultStream.on('end',()=>{
+            return resolve(counts)
+        })
+        resultStream.on('error', (err)=>{
+            return reject(err)
+        })
+    })
+    /*then(
 		results=>{
 			let counts = results.reduce((a,b)=>{
 				if (!a){
@@ -290,7 +358,7 @@ async function messagesUsers(query){
 			},null)
 			return counts
 		}
-	)
+	)*/
 }
 
 
